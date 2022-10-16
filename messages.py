@@ -3,7 +3,7 @@ from aiogram.utils.emoji import emojize
 
 
 class COMMANDS:
-    START = '/start'
+    START = 'start'
     HELP = '/help'
     CHANGE_STATE = '/change'
 
@@ -19,8 +19,8 @@ COMMANDS_MESS = md.text(md.bold('Команды:'),
 
 class STD_STATE:
     NAME_STATE = "state_std"
-    START = "Привет!\nНапиши мне что-нибудь!"
-    HELP = emojize('Напиши мне, и я отправлю этот текст тебе в ответ:smirk:!')
+    START = "Начнем!"
+    HELP = emojize('Напиши /start, и выбери необходимое действие :smirk:!')
 
 
 class STATE_0:

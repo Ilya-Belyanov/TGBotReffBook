@@ -1,8 +1,7 @@
-from aiogram.utils.helper import Helper, HelperMode, ListItem
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class MachStates(Helper):
-    mode = HelperMode.snake_case
-
-    STATE_0 = ListItem()
-    STATE_1 = ListItem()
+class MachStates(StatesGroup):
+    STATE_INSTITUTE = State()
+    STATE_ED_FORM = State()
+    STATE_COURSE = State()
