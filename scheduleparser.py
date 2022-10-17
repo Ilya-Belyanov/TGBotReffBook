@@ -10,18 +10,15 @@ class ScheduleParser:
         htlm_page = requests.get(ScheduleParser.BASE_URL)
         print("Status Code: ", htlm_page.status_code)
 
-        # Переводим полученный ответ в текст и размечаем его по тегам
         soup = bs(htlm_page.text)
 
-        # Извлекаем нужную информацию
         institutes = soup.findAll(name='li', class_='faculty-list__item')
         institutes_dict = dict()
 
         for inst in institutes:
             faculty = inst.find(name='a', class_='faculty-list__link')
             code = int(faculty['href'].split('/')[2])
-            name = faculty.text
-            institutes_dict[code] = name
+            institutes_dict[code] = faculty.text
         return institutes_dict
 
     @staticmethod
