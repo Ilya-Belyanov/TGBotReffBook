@@ -27,32 +27,72 @@ async def process_start_command(message: types.Message):
 
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state='*')
 async def process_callback_state_std(callback_query: types.CallbackQuery):
-    keybord = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getInstitutes())
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getInstitutes())
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, 'Секундочку...', reply_markup=keybord)
+    await bot.send_message(callback_query.from_user.id, 'Секундочку...', reply_markup=keyboard)
     await MachStates.STATE_INSTITUTE.set()
 
 
 @dispatcher.callback_query_handler(state=MachStates.STATE_INSTITUTE)
 async def process_callback_institutes(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(callback_query.data)
-    keybord = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_FORMS)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_FORMS_RU)
     await state.update_data(institute=code)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, 'Получил код: ' + str(code), reply_markup=keybord)
+    await bot.send_message(callback_query.from_user.id, 'Получил код: ' + str(code), reply_markup=keyboard)
     await MachStates.STATE_ED_FORM.set()
 
 
 @dispatcher.callback_query_handler(state=MachStates.STATE_ED_FORM)
 async def process_callback_education_form(callback_query: types.CallbackQuery, state: FSMContext):
-    code = int(callback_query.data)
-    data = await state.get_data()
-    keybord = kb.ScheduleKeyboard.createKeyboardListRows(ScheduleParser.getCourses(data['institute']))
-    await state.update_data(ed=code)
+    code = callback_query.data
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU)
+    await state.update_data(ed_form=code)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, 'Получил код: ' + str(code) + " " + EDUCATION_FORMS[code],
-                           reply_markup=keybord)
-    await MachStates.STATE_COURSE.set()
+    await bot.send_message(callback_query.from_user.id, 'Получил код: ' + code + " " + EDUCATION_FORMS_RU[code],
+                           reply_markup=keyboard)
+    await MachStates.STATE_ED_DEGREE.set()
+
+
+@dispatcher.callback_query_handler(state=MachStates.STATE_ED_DEGREE)
+async def process_callback_education_degree(callback_query: types.CallbackQuery, state: FSMContext):
+    code = int(callback_query.data)
+    await state.update_data(ed_degree=code)
+    data = await state.get_data()
+    keyboard = kb.ScheduleKeyboard.createKeyboardListRows(ScheduleParser.getCourses(data['institute'],
+                                                                                    data['ed_form'],
+                                                                                    data['ed_degree']))
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, 'Получил код: ' + str(code) + " " + EDUCATION_DEGREE_RU[code],
+                           reply_markup=keyboard)
+    await MachStates.STATE_LEVEL.set()
+
+
+@dispatcher.callback_query_handler(state=MachStates.STATE_LEVEL)
+async def process_callback_level(callback_query: types.CallbackQuery, state: FSMContext):
+    code = int(callback_query.data)
+    await state.update_data(level=code)
+    data = await state.get_data()
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getGroupsByParameters(data['institute'],
+                                                                                           data['ed_form'],
+                                                                                           data['ed_degree'],
+                                                                                           data['level']))
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id,
+                           'Получил код: ' + str(code),
+                           reply_markup=keyboard)
+    await MachStates.STATE_GROUP.set()
+
+
+@dispatcher.callback_query_handler(state=MachStates.STATE_GROUP)
+async def process_callback_level(callback_query: types.CallbackQuery, state: FSMContext):
+    code = int(callback_query.data)
+    await state.update_data(group=code)
+    data = await state.get_data()
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id,
+                           'Получил код: ' + str(code))
+    await MachStates.STATE_GROUP.set()
 
 '''
 @dispatcher.message_handler(commands=[COMMANDS.START[1:]], state=MachStates.STATE_0)

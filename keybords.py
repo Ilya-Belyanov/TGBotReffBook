@@ -19,11 +19,11 @@ class InitialKeyboard:
 
 class ScheduleKeyboard:
     @staticmethod
-    def createKeyboardRows(rows: dict):
-        rows_markup = InlineKeyboardMarkup(row_width=1)
+    def createKeyboardRows(rows: dict, rows_count: int = 1):
+        rows_markup = InlineKeyboardMarkup(row_width=rows_count)
         for row_key in rows.keys():
             btn = InlineKeyboardButton(rows[row_key], callback_data=str(row_key))
-            rows_markup.add(btn)
+            rows_markup.insert(btn)
         return rows_markup
 
     @staticmethod

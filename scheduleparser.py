@@ -25,20 +25,25 @@ class ScheduleParser:
         return institutes_dict
 
     @staticmethod
-    def getCourses(group: int):
-        group_url = ScheduleParser.BASE_URL + "/faculty/" + str(group) + "/groups"
-        htlm_page = requests.get(group_url)
-        print("Status Code: ", htlm_page.status_code)
+    def getCourses(faculty: int, ed_form: str, degree: int):
+        json_pack = ScheduleParser.getGroups(faculty)
+        levels = set()
+        for group in json_pack["groups"]:
+            if group["type"] == ed_form and group["kind"] == degree:
+                levels.add(group['level'])
+        return list(levels)
 
-        # Переводим полученный ответ в текст и размечаем его по тегам
-        soup = bs(htlm_page.text)
+    @staticmethod
+    def getGroupsByParameters(faculty: int, ed_form: str, degree: int, level: int):
+        json_pack = ScheduleParser.getGroups(faculty)
+        groups = dict()
+        for group in json_pack["groups"]:
+            if group["type"] == ed_form and group["kind"] == degree and group["level"] == level:
+                groups[group["id"]] = group["name"]
+        return {i: groups[i] for i in sorted(groups)}
 
-        # Извлекаем нужную информацию
-        levels = soup.findAll(name='div', class_='faculty__level')
-        levels_list = []
-
-        for level in levels:
-            faculty = level.find(name='h3')
-            levels_list.append(faculty.text)
-        return levels_list
+    @staticmethod
+    def getGroups(faculty):
+        group_url = ScheduleParser.BASE_URL + "/api/v1/ruz/faculties/" + str(faculty) + "/groups"
+        return requests.get(group_url).json()
 
