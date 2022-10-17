@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -7,6 +8,7 @@ from aiogram.dispatcher import FSMContext
 
 import config
 from data import *
+from datetimehelper import *
 import keybords as kb
 from scheduleparser import ScheduleParser
 
@@ -20,7 +22,7 @@ dispatcher = Dispatcher(bot, storage=MemoryStorage())
 dispatcher.middleware.setup(LoggingMiddleware())
 
 
-@dispatcher.message_handler(commands=[COMMANDS.START])
+@dispatcher.message_handler(commands=[COMMANDS.START], state='*')
 async def process_start_command(message: types.Message):
     await message.answer("Привет!", reply_markup=kb.InitialKeyboard.stateMarkup)
 
@@ -76,7 +78,8 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getGroupsByParameters(data['institute'],
                                                                                            data['ed_form'],
                                                                                            data['ed_degree'],
-                                                                                           data['level']))
+                                                                                           data['level']),
+                                                      rows_count=2)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id,
                            'Получил код: ' + str(code),
@@ -85,11 +88,29 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
 
 
 @dispatcher.callback_query_handler(state=MachStates.STATE_GROUP)
-async def process_callback_level(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_group(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(callback_query.data)
     await state.update_data(group=code)
     data = await state.get_data()
+    date = startDayOfWeek(datetime.date.today())
+    lessons = ScheduleParser.getLessons(data['institute'], data['group'], date)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(formeThreeWeekRange(date), 3)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id,
-                           'Получил код: ' + str(code))
-    await MachStates.STATE_GROUP.set()
+                           beautifySchedule(lessons),
+                           reply_markup=keyboard)
+    await MachStates.STATE_DATES.set()
+
+
+@dispatcher.callback_query_handler(state=MachStates.STATE_DATES)
+async def process_callback_dates(callback_query: types.CallbackQuery, state: FSMContext):
+    date = datetime.date.fromisoformat(callback_query.data)
+    data = await state.get_data()
+    await state.update_data(current_date=date)
+    lessons = ScheduleParser.getLessons(data['institute'], data['group'], date)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(formeThreeWeekRange(date), 3)
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id,
+                           beautifySchedule(lessons),
+                           reply_markup=keyboard)
+    await MachStates.STATE_DATES.set()

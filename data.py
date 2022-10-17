@@ -12,6 +12,14 @@ class EdDegree:
     SPO = 4
 
 
+class LessonsKeyWords:
+    DAY = "day"
+    LESSONS = "lessons"
+    START_TIME = "start_time"
+    END_TIME = "end_time"
+    NAME = "name"
+
+
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}
 EDUCATION_DEGREE_RU = {EdDegree.BACHELOR: "Бакалавр", EdDegree.MAGISTRACY: "Магистр",
                        EdDegree.SPECIALIST: "Специалист",  EdDegree.GRADUATE_STUDENT: "Аспирант",

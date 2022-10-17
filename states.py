@@ -7,3 +7,4 @@ class MachStates(StatesGroup):
     STATE_ED_DEGREE = State()
     STATE_LEVEL = State()
     STATE_GROUP = State()
+    STATE_DATES = State()

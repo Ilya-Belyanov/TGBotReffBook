@@ -14,6 +14,7 @@ class ScheduleKeyboard:
         for row_key in rows.keys():
             btn = InlineKeyboardButton(rows[row_key], callback_data=str(row_key))
             rows_markup.insert(btn)
+            print(rows[row_key], str(row_key))
         return rows_markup
 
     @staticmethod
