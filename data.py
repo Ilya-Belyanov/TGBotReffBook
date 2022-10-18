@@ -20,6 +20,15 @@ class LessonsKeyWords:
     NAME = "name"
 
 
+class IdCommandKeyWords:
+    INSTITUTE = "inst"
+    ED_FORM = "ed_form"
+    ED_DEGREE = "ed_degree"
+    LEVEL = "level"
+    GROUP = "group"
+    DATES = "dates"
+
+
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}
 EDUCATION_DEGREE_RU = {EdDegree.BACHELOR: "Бакалавр", EdDegree.MAGISTRACY: "Магистр",
                        EdDegree.SPECIALIST: "Специалист",  EdDegree.GRADUATE_STUDENT: "Аспирант",

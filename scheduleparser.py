@@ -40,7 +40,7 @@ class ScheduleParser:
         groups = dict()
         for group in json_pack["groups"]:
             if group["type"] == ed_form and group["kind"] == degree and group["level"] == level:
-                groups[group["id"]] = group["name"]
+                groups[group["name"] + "|" + str(group["id"])] = group["name"]
         return {i: groups[i] for i in sorted(groups)}
 
     @staticmethod
