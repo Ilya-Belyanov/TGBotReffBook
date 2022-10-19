@@ -2,11 +2,12 @@ import logging
 import datetime
 
 from aiogram.utils.emoji import emojize
+from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.dispatcher import FSMContext
 
+from data import config
 import data.emojizedb as edb
 from data.messages import *
 from data.keyspace import *
@@ -17,7 +18,6 @@ from core.datetimehelper import *
 from core.callbackparser import parseForData
 from core.answercreator import beautifySchedule
 from core.parsers.scheduleparser import ScheduleParser
-from data import config
 
 logging.basicConfig(level=logging.INFO)
 
@@ -55,11 +55,9 @@ async def process_callback_state_std(callback_query: types.CallbackQuery):
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.INSTITUTE in c.data, state='*')
 async def process_callback_institutes(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_FORMS_RU, IdCommandKeyWords.ED_FORM)
     await state.update_data(institute=code)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_GIBBOUS_MOON) + ' Форма обучения?',
-                           reply_markup=keyboard)
+    await process_answer_ed_form(callback_query, state)
 
 
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_FORM in c.data, state='*')
@@ -77,11 +75,17 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
     code = int(parseForData(callback_query.data))
     await state.update_data(ed_degree=code)
     data = await state.get_data()
-    keyboard = kb.ScheduleKeyboard.createKeyboardListRows(ScheduleParser.getCourses(data[StateKeyWords.INSTITUTE],
-                                                                                    data[StateKeyWords.ED_FORM],
-                                                                                    data[StateKeyWords.ED_DEGREE]),
-                                                          IdCommandKeyWords.LEVEL)
+    levels = ScheduleParser.getCourses(data[StateKeyWords.INSTITUTE],
+                                       data[StateKeyWords.ED_FORM],
+                                       data[StateKeyWords.ED_DEGREE])
+
     await bot.answer_callback_query(callback_query.id)
+    if len(levels) == 0:
+        await bot.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
+                                                            f'параметры!')
+        await process_answer_ed_form(callback_query, state)
+        return
+    keyboard = kb.ScheduleKeyboard.createKeyboardListRows(levels, IdCommandKeyWords.LEVEL)
     await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?',
                            reply_markup=keyboard)
 
@@ -116,6 +120,13 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
 async def process_callback_dates(callback_query: types.CallbackQuery, state: FSMContext):
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
     await process_schedule_dates(callback_query, state, date)
+
+
+# Многоразовые функции с вопросами
+async def process_answer_ed_form(callback_query: types.CallbackQuery, state: FSMContext):
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_FORMS_RU, IdCommandKeyWords.ED_FORM)
+    await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_GIBBOUS_MOON) + ' Форма обучения?',
+                           reply_markup=keyboard)
 
 
 async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):

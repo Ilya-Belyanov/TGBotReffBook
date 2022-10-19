@@ -1,7 +1,8 @@
 FACE_WITH_MONOCLE = ":face_with_monocle:"
 SCHOOL = ":school:"
 FILE_FOLDER = ":file_folder:"
-GRIN = "grin"
+GRIN = ":grin:"
+CRY = ":cry:"
 
 NEW_MOON_WITH_FACE = ":new_moon_with_face:"
 FULL_MOON_WITH_FACE = ":full_moon_with_face:"
