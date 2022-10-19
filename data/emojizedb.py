@@ -3,6 +3,7 @@ SCHOOL = ":school:"
 FILE_FOLDER = ":file_folder:"
 GRIN = ":grin:"
 CRY = ":cry:"
+HATCHING_CHICK = ":hatching_chick:"
 
 NEW_MOON_WITH_FACE = ":new_moon_with_face:"
 FULL_MOON_WITH_FACE = ":full_moon_with_face:"

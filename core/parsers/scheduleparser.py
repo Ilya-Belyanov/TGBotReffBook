@@ -64,20 +64,31 @@ class ScheduleParser:
                 lesson_dict[LessonsKeyWords.END_TIME] = lesson_item[3].text
                 lesson_dict[LessonsKeyWords.NAME] = lesson_item[5].text
 
+                # Groups
+                lesson_groups = lesson.find(name='div', class_='lesson-groups__list')
+                if lesson_groups is not None:
+                    lesson_groups = lesson_groups.findAll(name='a', class_='lesson__link')
+                    lesson_dict[LessonsKeyWords.GROUPS_NAME] = [group.text for group in lesson_groups]
+                    lesson_dict[LessonsKeyWords.GROUPS_LINK] = [group['href'] for group in lesson_groups]
+
                 # Teacher
-                lesson_teacher = lesson.find(name='div', class_='lesson__teachers').find(name='a', class_='lesson__link')
-                lesson_dict[LessonsKeyWords.TEACHER_NAME] = lesson_teacher.findAll(name='span')[2].text
-                lesson_dict[LessonsKeyWords.TEACHER_LINK] = lesson_teacher['href']
+                lesson_teacher = lesson.find(name='div', class_='lesson__teachers')
+                if lesson_teacher is not None:
+                    lesson_teacher = lesson_teacher.find(name='a', class_='lesson__link')
+                    lesson_dict[LessonsKeyWords.TEACHER_NAME] = lesson_teacher.findAll(name='span')[2].text
+                    lesson_dict[LessonsKeyWords.TEACHER_LINK] = lesson_teacher['href']
 
                 # Place
-                lesson_place = lesson.find(name='div', class_='lesson__places').find(name='a', class_='lesson__link')
-                place_spans = lesson_place.findAll(name='span')
-                lesson_dict[LessonsKeyWords.PLACE_NAME] = place_spans[0].text + " " + place_spans[5].text
-                lesson_dict[LessonsKeyWords.PLACE_LINK] = lesson_place['href']
+                lesson_place = lesson.find(name='div', class_='lesson__places')
+                if lesson_place is not None:
+                    lesson_place = lesson_place.find(name='a', class_='lesson__link')
+                    place_spans = lesson_place.findAll(name='span')
+                    lesson_dict[LessonsKeyWords.PLACE_NAME] = place_spans[0].text + " " + place_spans[5].text
+                    lesson_dict[LessonsKeyWords.PLACE_LINK] = lesson_place['href']
 
                 # Resource
                 lesson_resource = lesson.find(name='div', class_='lesson__resource_links')
-                if lesson_resource:
+                if lesson_resource is not None:
                     resource_link = lesson_resource.find(name='a')
                     lesson_dict[LessonsKeyWords.RESOURCE_NAME] = resource_link.text
                     lesson_dict[LessonsKeyWords.RESOURCE_LINK] = resource_link['href']

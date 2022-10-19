@@ -104,6 +104,7 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     await state.update_data(level=code)
     data = await state.get_data()
     await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали {code} курс')
 
     if StateKeyWords.INSTITUTE not in data \
             or StateKeyWords.ED_FORM not in data \
@@ -136,6 +137,7 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
     await state.update_data(group=code)
     await state.update_data(group_name=group_name)
     date = startDayOfWeek(datetime.date.today())
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали группу {group_name}')
     await process_schedule_dates(callback_query, state, date)
 
 
@@ -160,6 +162,14 @@ async def process_answer_ed_form(callback_query: types.CallbackQuery, state: FSM
 async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
     data = await state.get_data()
     await state.update_data(current_date=date)
+
+    if StateKeyWords.INSTITUTE not in data \
+            or StateKeyWords.GROUP not in data:
+        await bot.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
+                                                            f'сначала!')
+        await process_answer_institute(callback_query, state)
+        return
+
     lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot.answer_callback_query(callback_query.id)

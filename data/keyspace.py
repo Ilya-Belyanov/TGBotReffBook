@@ -18,6 +18,8 @@ class LessonsKeyWords:
     START_TIME = "start_time"
     END_TIME = "end_time"
     NAME = "name"
+    GROUPS_NAME = "groups_name"
+    GROUPS_LINK = "groups_link"
     TEACHER_NAME = "teacher_name"
     TEACHER_LINK = "teacher_link"
     PLACE_NAME = "place_name"
