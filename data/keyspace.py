@@ -1,6 +1,6 @@
 class EdForm:
     COMMON = 'common'
-    DISTANT = 'distant'
+    DISTANT = 'distance'
     EVENING = 'evening'
 
 
@@ -18,6 +18,12 @@ class LessonsKeyWords:
     START_TIME = "start_time"
     END_TIME = "end_time"
     NAME = "name"
+    TEACHER_NAME = "teacher_name"
+    TEACHER_LINK = "teacher_link"
+    PLACE_NAME = "place_name"
+    PLACE_LINK = "place_link"
+    RESOURCE_NAME = "resource_name"
+    RESOURCE_LINK = "resource_link"
 
 
 class IdCommandKeyWords:

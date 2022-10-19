@@ -5,7 +5,7 @@ from data.commands import COMMANDS
 
 
 UNKNOWN_MESS = md.text(emojize('Я не знаю, что с этим делать :astonished:'),
-                       md.italic('\nЯ просто напомню,'), 'что есть команда', '/help')
+                       md.italic('\nЯ просто напомню,'), 'что есть команда', f'/{COMMANDS.HELP}')
 
 COMMANDS_MESS = md.text(md.bold('Команды:'),
                         "/" + md.italic(COMMANDS.START) + " - Главное меню выбора",

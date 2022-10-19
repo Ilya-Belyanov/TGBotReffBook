@@ -5,17 +5,14 @@ from bs4 import BeautifulSoup as bs
 
 from data.keyspace import LessonsKeyWords
 from data.keyspace import Separators
+from data.urls import SCHEDULE_URL, SCHEDULE_API_URL
 
 
 class ScheduleParser:
-    BASE_URL = 'https://ruz.spbstu.ru'
-
     @staticmethod
     def getInstitutes():
-        htlm_page = requests.get(ScheduleParser.BASE_URL)
-        print("Status Code: ", htlm_page.status_code)
-
-        soup = bs(htlm_page.text)
+        htlm_page = requests.get(SCHEDULE_URL)
+        soup = bs(htlm_page.text, features="html.parser")
 
         institutes = soup.findAll(name='li', class_='faculty-list__item')
         institutes_dict = dict()
@@ -46,12 +43,11 @@ class ScheduleParser:
 
     @staticmethod
     def getLessons(faculty: int, group: int, date: datetime.date):
-        url = ScheduleParser.BASE_URL + '/faculty/' + str(faculty) + '/groups/' + str(
+        url = SCHEDULE_URL + '/faculty/' + str(faculty) + '/groups/' + str(
             group) + '?date=' + date.isoformat()
 
         htlm_inf = requests.get(url)
-        print("Status Code: ", htlm_inf.status_code)
-        soup = bs(htlm_inf.text)
+        soup = bs(htlm_inf.text, features="html.parser")
         days = soup.find(name='ul', class_='schedule').findAll(name='li', class_='schedule__day')
 
         lessons_result = []
@@ -67,6 +63,25 @@ class ScheduleParser:
                 lesson_dict[LessonsKeyWords.START_TIME] = lesson_item[1].text
                 lesson_dict[LessonsKeyWords.END_TIME] = lesson_item[3].text
                 lesson_dict[LessonsKeyWords.NAME] = lesson_item[5].text
+
+                # Teacher
+                lesson_teacher = lesson.find(name='div', class_='lesson__teachers').find(name='a', class_='lesson__link')
+                lesson_dict[LessonsKeyWords.TEACHER_NAME] = lesson_teacher.findAll(name='span')[2].text
+                lesson_dict[LessonsKeyWords.TEACHER_LINK] = lesson_teacher['href']
+
+                # Place
+                lesson_place = lesson.find(name='div', class_='lesson__places').find(name='a', class_='lesson__link')
+                place_spans = lesson_place.findAll(name='span')
+                lesson_dict[LessonsKeyWords.PLACE_NAME] = place_spans[0].text + " " + place_spans[5].text
+                lesson_dict[LessonsKeyWords.PLACE_LINK] = lesson_place['href']
+
+                # Resource
+                lesson_resource = lesson.find(name='div', class_='lesson__resource_links')
+                if lesson_resource:
+                    resource_link = lesson_resource.find(name='a')
+                    lesson_dict[LessonsKeyWords.RESOURCE_NAME] = resource_link.text
+                    lesson_dict[LessonsKeyWords.RESOURCE_LINK] = resource_link['href']
+
                 lessons_at_day.append(lesson_dict)
             day_dict[LessonsKeyWords.LESSONS] = lessons_at_day
             lessons_result.append(day_dict)
@@ -74,5 +89,5 @@ class ScheduleParser:
 
     @staticmethod
     def getGroups(faculty):
-        group_url = ScheduleParser.BASE_URL + "/api/v1/ruz/faculties/" + str(faculty) + "/groups"
+        group_url = SCHEDULE_API_URL + "faculties/" + str(faculty) + "/groups"
         return requests.get(group_url).json()
