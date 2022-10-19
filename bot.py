@@ -82,7 +82,8 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
                                                                                     data[StateKeyWords.ED_DEGREE]),
                                                           IdCommandKeyWords.LEVEL)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?', reply_markup=keyboard)
+    await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?',
+                           reply_markup=keyboard)
 
 
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.LEVEL in c.data, state='*')
@@ -107,21 +108,17 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
     group_name = parseForData(call_data, index=0, sep=Separators.DATA_META)
     await state.update_data(group=code)
     await state.update_data(group_name=group_name)
-    data = await state.get_data()
     date = startDayOfWeek(datetime.date.today())
-    lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
-    await bot.answer_callback_query(callback_query.id)
-    answers = beautifySchedule(lessons, date)
-    for answer in answers:
-        await bot.send_message(callback_query.from_user.id, answer, parse_mode=types.ParseMode.MARKDOWN_V2)
-    await bot.send_message(callback_query.from_user.id, emojize(edb.CALENDAR) + "Выбрать другую неделю",
-                           reply_markup=keyboard)
+    await process_schedule_dates(callback_query, state, date)
 
 
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state='*')
 async def process_callback_dates(callback_query: types.CallbackQuery, state: FSMContext):
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
+    await process_schedule_dates(callback_query, state, date)
+
+
+async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
     data = await state.get_data()
     await state.update_data(current_date=date)
     lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
