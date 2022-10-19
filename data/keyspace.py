@@ -29,6 +29,20 @@ class IdCommandKeyWords:
     DATES = "dates"
 
 
+class Separators:
+    KEY_DATA = ":"
+    DATA_META = "|"
+
+
+class StateKeyWords:
+    INSTITUTE = "institute"
+    ED_FORM = 'ed_form'
+    ED_DEGREE = 'ed_degree'
+    LEVEL = "level"
+    GROUP = "group"
+    GROUP_NAME = "group_name"
+
+
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}
 EDUCATION_DEGREE_RU = {EdDegree.BACHELOR: "Бакалавр", EdDegree.MAGISTRACY: "Магистр",
                        EdDegree.SPECIALIST: "Специалист",  EdDegree.GRADUATE_STUDENT: "Аспирант",

@@ -1,18 +1,21 @@
 import logging
-import datetime
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import FSMContext
 
-import config
-from data import *
-from datetimehelper import *
-import keybords as kb
-from scheduleparser import ScheduleParser
+from data.messages import *
+from data.keyspace import *
+from data.commands import COMMANDS
 
-from messages import *
+from core import keybords as kb
+from core.datetimehelper import *
+from core.callbackparser import parseForData
+from core.answercreator import beautifySchedule
+from core.parsers.scheduleparser import ScheduleParser
+from data import config
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,8 +29,10 @@ dispatcher.middleware.setup(LoggingMiddleware())
 async def process_start_command(message: types.Message, state: FSMContext):
     data = await state.get_data()
     keyboard = kb.InitialKeyboard.createKeyboard()
-    if "group" in data:
-        kb.InitialKeyboard.addCacheGroupButton(keyboard, data["group"], data["group_name"], IdCommandKeyWords.GROUP)
+    if StateKeyWords.GROUP in data:
+        kb.InitialKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.GROUP],
+                                               data[StateKeyWords.GROUP_NAME],
+                                               IdCommandKeyWords.GROUP)
     await message.answer("Добро пожаловать!", reply_markup=keyboard)
 
 
@@ -68,9 +73,9 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
     code = int(parseForData(callback_query.data))
     await state.update_data(ed_degree=code)
     data = await state.get_data()
-    keyboard = kb.ScheduleKeyboard.createKeyboardListRows(ScheduleParser.getCourses(data['institute'],
-                                                                                    data['ed_form'],
-                                                                                    data['ed_degree']),
+    keyboard = kb.ScheduleKeyboard.createKeyboardListRows(ScheduleParser.getCourses(data[StateKeyWords.INSTITUTE],
+                                                                                    data[StateKeyWords.ED_FORM],
+                                                                                    data[StateKeyWords.ED_DEGREE]),
                                                           IdCommandKeyWords.LEVEL)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, 'Курс?', reply_markup=keyboard)
@@ -81,10 +86,10 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     code = int(parseForData(callback_query.data))
     await state.update_data(level=code)
     data = await state.get_data()
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getGroupsByParameters(data['institute'],
-                                                                                           data['ed_form'],
-                                                                                           data['ed_degree'],
-                                                                                           data['level']),
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getGroupsByParameters(data[StateKeyWords.INSTITUTE],
+                                                                                           data[StateKeyWords.ED_FORM],
+                                                                                           data[StateKeyWords.ED_DEGREE],
+                                                                                           data[StateKeyWords.LEVEL]),
                                                       IdCommandKeyWords.GROUP, rows_count=2)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, 'Группа?', reply_markup=keyboard)
@@ -93,14 +98,14 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.GROUP in c.data, state='*')
 async def process_callback_group(callback_query: types.CallbackQuery, state: FSMContext):
     call_data = parseForData(callback_query.data)
-    call_list_data = call_data.split("|")
-    code = int(call_list_data[1])
+    code = parseForData(call_data, sep=Separators.DATA_META)
+    group_name = parseForData(call_data, index=0, sep=Separators.DATA_META)
     await state.update_data(group=code)
-    await state.update_data(group_name=call_list_data[0])
+    await state.update_data(group_name=group_name)
     data = await state.get_data()
     date = startDayOfWeek(datetime.date.today())
-    lessons = ScheduleParser.getLessons(data['institute'], data['group'], date)
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(formeThreeWeekRange(date), IdCommandKeyWords.DATES, 3)
+    lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, md.text(beautifySchedule(lessons, date)),
                            reply_markup=keyboard, parse_mode=types.ParseMode.MARKDOWN)
@@ -111,8 +116,8 @@ async def process_callback_dates(callback_query: types.CallbackQuery, state: FSM
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
     data = await state.get_data()
     await state.update_data(current_date=date)
-    lessons = ScheduleParser.getLessons(data['institute'], data['group'], date)
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(formeThreeWeekRange(date), IdCommandKeyWords.DATES, 3)
+    lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, md.text(beautifySchedule(lessons, date)),
                            reply_markup=keyboard, parse_mode=types.ParseMode.MARKDOWN)

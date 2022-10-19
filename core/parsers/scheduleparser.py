@@ -3,7 +3,8 @@ import datetime
 import requests
 from bs4 import BeautifulSoup as bs
 
-from data import LessonsKeyWords
+from data.keyspace import LessonsKeyWords
+from data.keyspace import Separators
 
 
 class ScheduleParser:
@@ -40,7 +41,7 @@ class ScheduleParser:
         groups = dict()
         for group in json_pack["groups"]:
             if group["type"] == ed_form and group["kind"] == degree and group["level"] == level:
-                groups[group["name"] + "|" + str(group["id"])] = group["name"]
+                groups[group["name"] + Separators.DATA_META + str(group["id"])] = group["name"]
         return {i: groups[i] for i in sorted(groups)}
 
     @staticmethod

@@ -1,5 +1,4 @@
-from scheduleparser import ScheduleParser
-from data import *
+from core.parsers.scheduleparser import ScheduleParser
 
 if __name__ == "__main__":
     print(ScheduleParser.getCourses(94, EdForm.COMMON, EdDegree.MAGISTRACY))
