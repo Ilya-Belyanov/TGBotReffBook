@@ -1,8 +1,7 @@
 import datetime
-import asyncio
 from aiohttp import request
 
-import requests
+from async_lru import alru_cache
 from bs4 import BeautifulSoup as bs
 
 from data.keyspace import LessonsKeyWords
@@ -27,6 +26,7 @@ class ScheduleParser:
             return institutes_dict
 
     @staticmethod
+    @alru_cache
     async def getCourses(faculty: int, ed_form: str, degree: int):
         json_pack = await ScheduleParser.getGroups(faculty)
         levels = set()
@@ -36,6 +36,7 @@ class ScheduleParser:
         return list(levels)
 
     @staticmethod
+    @alru_cache
     async def getGroupsByParameters(faculty: int, ed_form: str, degree: int, level: int):
         json_pack = await ScheduleParser.getGroups(faculty)
         groups = dict()
@@ -45,6 +46,7 @@ class ScheduleParser:
         return {i: groups[i] for i in sorted(groups)}
 
     @staticmethod
+    @alru_cache
     async def getLessons(faculty: int, group: int, date: datetime.date):
         url = SCHEDULE_URL + '/faculty/' + str(faculty) + '/groups/' + str(
             group) + '?date=' + date.isoformat()
