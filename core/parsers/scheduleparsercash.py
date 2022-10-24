@@ -17,16 +17,16 @@ class ScheduleParserCash:
         return cls.INSTITUTE_CASH
 
     @classmethod
-    def getCourses(cls, faculty: int, ed_form: str, degree: int):
-        return ScheduleParser.getCourses(faculty, ed_form, degree)
+    async def getCourses(cls, faculty: int, ed_form: str, degree: int):
+        return await ScheduleParser.getCourses(faculty, ed_form, degree)
 
     @classmethod
-    def getGroupsByParameters(cls, faculty: int, ed_form: str, degree: int, level: int):
-        return ScheduleParser.getGroupsByParameters(faculty, ed_form, degree, level)
+    async def getGroupsByParameters(cls, faculty: int, ed_form: str, degree: int, level: int):
+        return await ScheduleParser.getGroupsByParameters(faculty, ed_form, degree, level)
 
     @classmethod
-    def getLessons(cls, faculty: int, group: int, date: datetime.date):
-        return ScheduleParser.getLessons(faculty, group, date)
+    async def getLessons(cls, faculty: int, group: int, date: datetime.date):
+        return await ScheduleParser.getLessons(faculty, group, date)
 
     @classmethod
     async def getInstituteNameByID(cls, id: int):
