@@ -57,8 +57,8 @@ async def process_param_command(message: types.Message, state: FSMContext):
     answer = md.bold("Последний раз вы ввели следующие параметры") + ":"
     data = await state.get_data()
     answer += "\n"
-    answer += md.bold("Институт") + " - " + (ScheduleParserCash.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
-                                             if StateKeyWords.INSTITUTE in data else emojize(edb.NO_ENTRY_SIGN))
+    name = await ScheduleParserCash.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
+    answer += md.bold("Институт") + " - " + (name if StateKeyWords.INSTITUTE in data else emojize(edb.NO_ENTRY_SIGN))
     answer += "\n"
     answer += md.bold("Форма") + " - " + (EDUCATION_FORMS_RU[data[StateKeyWords.ED_FORM]]
                                           if StateKeyWords.ED_FORM in data else emojize(edb.NO_ENTRY_SIGN))
@@ -89,8 +89,8 @@ async def process_callback_institutes(callback_query: types.CallbackQuery, state
     code = int(parseForData(callback_query.data))
     await state.update_data(institute=code)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id,
-                           f'Вы выбрали "{ScheduleParserCash.getInstituteNameByID(code)}" ')
+    name = await ScheduleParserCash.getInstituteNameByID(code)
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали "{name}" ')
     await process_answer_ed_form(callback_query, state)
 
 
@@ -100,8 +100,8 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU, IdCommandKeyWords.ED_DEGREE)
     await state.update_data(ed_form=code)
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}"')
-    await bot.send_message(callback_query.from_user.id, emojize(edb.LAST_QUARTER_MOON) + 'Ступень образования?',
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}" \n'
+                           + emojize(edb.LAST_QUARTER_MOON) + 'Ступень образования?',
                            reply_markup=keyboard)
 
 
@@ -206,7 +206,8 @@ async def process_callback_dates(callback_query: types.CallbackQuery, state: FSM
 
 # Многоразовые функции с вопросами
 async def process_answer_institute(callback_query: types.CallbackQuery, state: FSMContext):
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParserCash.getInstitutes(), IdCommandKeyWords.INSTITUTE)
+    inst = await ScheduleParserCash.getInstitutes()
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(inst, IdCommandKeyWords.INSTITUTE)
     await bot.send_message(callback_query.from_user.id, emojize(edb.FULL_MOON) + ' Институт?', reply_markup=keyboard)
 
 

@@ -1,4 +1,6 @@
 import datetime
+import asyncio
+from aiohttp import request
 
 import requests
 from bs4 import BeautifulSoup as bs
@@ -10,18 +12,19 @@ from data.urls import SCHEDULE_URL, SCHEDULE_API_URL
 
 class ScheduleParser:
     @staticmethod
-    def getInstitutes():
-        htlm_page = requests.get(SCHEDULE_URL)
-        soup = bs(htlm_page.text, features="html.parser")
+    async def getInstitutes():
+        async with request("GET", SCHEDULE_URL) as html_page:
+            text = await html_page.text()
+            soup = bs(text, features="html.parser")
 
-        institutes = soup.findAll(name='li', class_='faculty-list__item')
-        institutes_dict = dict()
+            institutes = soup.findAll(name='li', class_='faculty-list__item')
+            institutes_dict = dict()
 
-        for inst in institutes:
-            faculty = inst.find(name='a', class_='faculty-list__link')
-            code = int(faculty['href'].split('/')[2])
-            institutes_dict[code] = faculty.text
-        return institutes_dict
+            for inst in institutes:
+                faculty = inst.find(name='a', class_='faculty-list__link')
+                code = int(faculty['href'].split('/')[2])
+                institutes_dict[code] = faculty.text
+            return institutes_dict
 
     @staticmethod
     def getCourses(faculty: int, ed_form: str, degree: int):
