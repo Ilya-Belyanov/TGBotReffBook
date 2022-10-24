@@ -23,3 +23,11 @@ def isEvenWeek(date: datetime.date) -> bool:
 
 def isDayTime(time: datetime.time):
     return 6 <= time.hour < 18
+
+
+def daysBetween(start: datetime.date, end: datetime.date):
+    return abs((end - start).days)
+
+
+def daysBetweenNow(date: datetime.date):
+    return daysBetween(date, datetime.datetime.now().date())

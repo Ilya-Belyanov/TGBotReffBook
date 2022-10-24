@@ -14,3 +14,5 @@ WANING_CRESCENT_MOON = ":waning_crescent_moon:"
 NEW_MOON = ":new_moon:"
 
 CALENDAR = ":calendar:"
+
+NO_ENTRY_SIGN = ":no_entry_sign:"

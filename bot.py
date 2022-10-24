@@ -17,7 +17,7 @@ from core import keybords as kb
 from core.datetimehelper import *
 from core.callbackparser import parseForData
 from core.answercreator import beautifySchedule
-from core.parsers.scheduleparser import ScheduleParser
+from core.parsers.scheduleparsercash import ScheduleParserCash
 
 logging.basicConfig(level=logging.INFO)
 
@@ -44,6 +44,28 @@ async def process_help_command(message: types.Message):
     await message.reply(md.text(COMMANDS_MESS), parse_mode=types.ParseMode.MARKDOWN)
 
 
+@dispatcher.message_handler(commands=[COMMANDS.PARAMETERS], state='*')
+async def process_param_command(message: types.Message, state: FSMContext):
+    answer = md.bold("Вы ввели следующие параметры") + ":"
+    data = await state.get_data()
+    answer += "\n"
+    answer += md.bold("Институт") + " - " + (ScheduleParserCash.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
+                                             if StateKeyWords.INSTITUTE in data else emojize(edb.NO_ENTRY_SIGN))
+    answer += "\n"
+    answer += md.bold("Форма") + " - " + (EDUCATION_FORMS_RU[data[StateKeyWords.ED_FORM]]
+                                          if StateKeyWords.ED_FORM in data else emojize(edb.NO_ENTRY_SIGN))
+    answer += "\n"
+    answer += md.bold("Степень") + " - " + (EDUCATION_DEGREE_RU[data[StateKeyWords.ED_DEGREE]]
+                                            if StateKeyWords.ED_DEGREE in data else emojize(edb.NO_ENTRY_SIGN))
+    answer += "\n"
+    answer += md.bold("Курс") + " - " + (
+        str(data[StateKeyWords.LEVEL]) if StateKeyWords.LEVEL in data else emojize(edb.NO_ENTRY_SIGN))
+    answer += "\n"
+    answer += md.bold("Группа") + " - " + (
+        data[StateKeyWords.GROUP_NAME] if StateKeyWords.GROUP_NAME in data else emojize(edb.NO_ENTRY_SIGN))
+    await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
+
+
 # Работа с обработкой кнопок
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state='*')
 async def process_callback_state_std(callback_query: types.CallbackQuery, state: FSMContext):
@@ -56,6 +78,8 @@ async def process_callback_institutes(callback_query: types.CallbackQuery, state
     code = int(parseForData(callback_query.data))
     await state.update_data(institute=code)
     await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id,
+                           f'Вы выбрали "{ScheduleParserCash.getInstituteNameByID(code)}" ')
     await process_answer_ed_form(callback_query, state)
 
 
@@ -65,6 +89,7 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU, IdCommandKeyWords.ED_DEGREE)
     await state.update_data(ed_form=code)
     await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}"')
     await bot.send_message(callback_query.from_user.id, emojize(edb.LAST_QUARTER_MOON) + 'Ступень образования?',
                            reply_markup=keyboard)
 
@@ -83,16 +108,16 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
         await process_answer_institute(callback_query, state)
         return
 
-    levels = ScheduleParser.getCourses(data[StateKeyWords.INSTITUTE],
-                                       data[StateKeyWords.ED_FORM],
-                                       data[StateKeyWords.ED_DEGREE])
+    levels = ScheduleParserCash.getCourses(data[StateKeyWords.INSTITUTE],
+                                           data[StateKeyWords.ED_FORM],
+                                           data[StateKeyWords.ED_DEGREE])
 
     if len(levels) == 0:
         await bot.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
                                                             f'параметры!')
         await process_answer_ed_form(callback_query, state)
         return
-
+    await bot.send_message(callback_query.from_user.id, f'Вы выбрали степень "{EDUCATION_DEGREE_RU[code]}"')
     keyboard = kb.ScheduleKeyboard.createKeyboardListRows(levels, IdCommandKeyWords.LEVEL)
     await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?',
                            reply_markup=keyboard)
@@ -114,10 +139,10 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
         await process_answer_institute(callback_query, state)
         return
 
-    groups = ScheduleParser.getGroupsByParameters(data[StateKeyWords.INSTITUTE],
-                                                  data[StateKeyWords.ED_FORM],
-                                                  data[StateKeyWords.ED_DEGREE],
-                                                  data[StateKeyWords.LEVEL])
+    groups = ScheduleParserCash.getGroupsByParameters(data[StateKeyWords.INSTITUTE],
+                                                      data[StateKeyWords.ED_FORM],
+                                                      data[StateKeyWords.ED_DEGREE],
+                                                      data[StateKeyWords.LEVEL])
 
     if len(groups) == 0:
         await bot.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
@@ -149,7 +174,7 @@ async def process_callback_dates(callback_query: types.CallbackQuery, state: FSM
 
 # Многоразовые функции с вопросами
 async def process_answer_institute(callback_query: types.CallbackQuery, state: FSMContext):
-    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParser.getInstitutes(), IdCommandKeyWords.INSTITUTE)
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(ScheduleParserCash.getInstitutes(), IdCommandKeyWords.INSTITUTE)
     await bot.send_message(callback_query.from_user.id, emojize(edb.FULL_MOON) + ' Институт?', reply_markup=keyboard)
 
 
@@ -170,7 +195,7 @@ async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSM
         await process_answer_institute(callback_query, state)
         return
 
-    lessons = ScheduleParser.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
+    lessons = ScheduleParserCash.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
