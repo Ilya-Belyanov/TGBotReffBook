@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from data.keyspace import Separators
+from data.urls import SCHEDULE_URL
 
 
 class InitialKeyboard:
@@ -8,15 +9,22 @@ class InitialKeyboard:
 
     @staticmethod
     def createKeyboard():
-        getScheduleBtn = InlineKeyboardButton('Все расписания', callback_data=InitialKeyboard.getScheduleTxt)
+        getScheduleBtn = InlineKeyboardButton('Найти расписание', callback_data=InitialKeyboard.getScheduleTxt)
         return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn)
 
+
+class ModifyKeyboard:
     @staticmethod
-    def addCacheGroupButton(markup: InlineKeyboardMarkup, group_id: int, group_name: str, key_word: str):
-        getCachedScheduleBtn = InlineKeyboardButton(f'Расписание для группы {group_name}',
+    def addCacheGroupButton(markup: InlineKeyboardMarkup, group_id: int, group_name: str, key_word: str, text: str = "Группа"):
+        getCachedScheduleBtn = InlineKeyboardButton(text + f' {group_name}',
                                                     callback_data=key_word + Separators.KEY_DATA
                                                     + group_name + Separators.DATA_META + str(group_id))
         markup.add(getCachedScheduleBtn)
+
+    @staticmethod
+    def addPolyLinkGroupButton(markup: InlineKeyboardMarkup):
+        getUrlScheduleBtn = InlineKeyboardButton("Сайт с расписанием", url=SCHEDULE_URL)
+        markup.add(getUrlScheduleBtn)
 
 
 class ScheduleKeyboard:

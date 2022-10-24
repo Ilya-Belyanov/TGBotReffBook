@@ -6,6 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from data import config
 import data.emojizedb as edb
@@ -31,22 +32,29 @@ dispatcher.middleware.setup(LoggingMiddleware())
 async def process_start_command(message: types.Message, state: FSMContext):
     data = await state.get_data()
     keyboard = kb.InitialKeyboard.createKeyboard()
-    if StateKeyWords.GROUP in data:
-        kb.InitialKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.GROUP],
-                                               data[StateKeyWords.GROUP_NAME],
-                                               IdCommandKeyWords.GROUP)
+
+    if StateKeyWords.SAVED_GROUP in data:
+        kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.SAVED_GROUP],
+                                              data[StateKeyWords.SAVED_GROUP_NAME],
+                                              IdCommandKeyWords.GROUP, text="Сохраненная группа:")
+    if StateKeyWords.GROUP in data and data[StateKeyWords.GROUP] != data.get(StateKeyWords.SAVED_GROUP):
+        kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.GROUP],
+                                              data[StateKeyWords.GROUP_NAME],
+                                              IdCommandKeyWords.GROUP, text="Расписание для группы")
+
+    kb.ModifyKeyboard.addPolyLinkGroupButton(keyboard)
     em = edb.FULL_MOON_WITH_FACE if isDayTime(datetime.datetime.now().time()) else edb.NEW_MOON_WITH_FACE
     await message.answer(emojize(em) + " Добро пожаловать!", reply_markup=keyboard)
 
 
 @dispatcher.message_handler(commands=[COMMANDS.HELP], state='*')
 async def process_help_command(message: types.Message):
-    await message.reply(md.text(COMMANDS_MESS), parse_mode=types.ParseMode.MARKDOWN)
+    await message.reply(COMMANDS_MESS, parse_mode=types.ParseMode.MARKDOWN)
 
 
 @dispatcher.message_handler(commands=[COMMANDS.PARAMETERS], state='*')
 async def process_param_command(message: types.Message, state: FSMContext):
-    answer = md.bold("Вы ввели следующие параметры") + ":"
+    answer = md.bold("Последний раз вы ввели следующие параметры") + ":"
     data = await state.get_data()
     answer += "\n"
     answer += md.bold("Институт") + " - " + (ScheduleParserCash.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
@@ -63,6 +71,9 @@ async def process_param_command(message: types.Message, state: FSMContext):
     answer += "\n"
     answer += md.bold("Группа") + " - " + (
         data[StateKeyWords.GROUP_NAME] if StateKeyWords.GROUP_NAME in data else emojize(edb.NO_ENTRY_SIGN))
+    answer += "\n"
+    answer += md.bold("Сохраненная Группа") + " - " + (
+        data[StateKeyWords.SAVED_GROUP_NAME] if StateKeyWords.SAVED_GROUP_NAME in data else emojize(edb.NO_ENTRY_SIGN))
     await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
 
 
@@ -164,6 +175,27 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
     date = startDayOfWeek(datetime.date.today())
     await bot.send_message(callback_query.from_user.id, f'Вы выбрали группу {group_name}')
     await process_schedule_dates(callback_query, state, date)
+
+    data = await state.get_data()
+    if data[StateKeyWords.GROUP] != data.get(StateKeyWords.SAVED_GROUP):
+        keyboard = InlineKeyboardMarkup(row_width=1)
+        kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.GROUP],
+                                              data[StateKeyWords.GROUP_NAME],
+                                              IdCommandKeyWords.SAVE_GROUP, text="Сохранить группу")
+
+        await bot.send_message(callback_query.from_user.id, "Вы можете сохранить группу в кэш, чтобы не вводить ее "
+                                                            "каждый раз", reply_markup=keyboard)
+
+
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.SAVE_GROUP in c.data, state='*')
+async def process_callback_save_group(callback_query: types.CallbackQuery, state: FSMContext):
+    call_data = parseForData(callback_query.data)
+    code = parseForData(call_data, sep=Separators.DATA_META)
+    group_name = parseForData(call_data, index=0, sep=Separators.DATA_META)
+    await state.update_data(saved_group=code)
+    await state.update_data(saved_group_name=group_name)
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f"Группа {group_name} сохранена!")
 
 
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state='*')

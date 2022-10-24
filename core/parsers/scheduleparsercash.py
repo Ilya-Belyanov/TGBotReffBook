@@ -7,12 +7,11 @@ from core.datetimehelper import daysBetweenNow
 class ScheduleParserCash:
     INSTITUTE_CASH = dict()
     INSTITUTE_LAST_DT_CASH = datetime.datetime.now().date()
-    INSTITUTE_CASH_PERIOD = 3
+    INSTITUTE_CASH_PERIOD = 30
 
     @classmethod
     def getInstitutes(cls):
         if len(cls.INSTITUTE_CASH) == 0 or daysBetweenNow(cls.INSTITUTE_LAST_DT_CASH) > cls.INSTITUTE_CASH_PERIOD:
-            print("CASH")
             cls.INSTITUTE_CASH = ScheduleParser.getInstitutes()
             cls.INSTITUTE_LAST_DT_CASH = datetime.datetime.now().date()
         return cls.INSTITUTE_CASH
@@ -32,5 +31,5 @@ class ScheduleParserCash:
     @classmethod
     def getInstituteNameByID(cls, id: int):
         inst = cls.getInstitutes()
-        return inst[id]
+        return inst.get(id)
 

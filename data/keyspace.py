@@ -34,6 +34,7 @@ class IdCommandKeyWords:
     ED_DEGREE = "ed_degree"
     LEVEL = "level"
     GROUP = "group"
+    SAVE_GROUP = "save"
     DATES = "dates"
 
 
@@ -49,6 +50,8 @@ class StateKeyWords:
     LEVEL = "level"
     GROUP = "group"
     GROUP_NAME = "group_name"
+    SAVED_GROUP = "saved_group"
+    SAVED_GROUP_NAME = "saved_group_name"
 
 
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}
