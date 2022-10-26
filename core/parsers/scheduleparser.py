@@ -104,6 +104,7 @@ class ScheduleParser:
             return lessons_result
 
     @staticmethod
+    @alru_cache
     async def getGroups(faculty):
         group_url = SCHEDULE_API_URL + "faculties/" + str(faculty) + "/groups"
         async with request("GET", group_url) as html_page:
