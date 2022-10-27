@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  poly-schedule-bot:
+    image: 031983/poly-schedule-bot
+    secrets:
+      - token
+
+secrets:
+  token:
+    external: true
