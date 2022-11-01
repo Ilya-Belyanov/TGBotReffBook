@@ -47,8 +47,26 @@ class ScheduleParser:
 
     @staticmethod
     @alru_cache
-    async def getLessons(faculty: int, group: int, date: datetime.date):
-        url = SCHEDULE_URL + '/faculty/' + str(faculty) + '/groups/' + str(
+    async def getGroupsByText(group: str):
+        url = SCHEDULE_URL + f"/search/groups?q={group}"
+        async with request("GET", url) as html_page:
+            text = await html_page.text()
+            soup = bs(text, features="html.parser")
+
+            groups = soup.findAll(name='li', class_='groups-list__item')
+            groups_dict = dict()
+
+            for gr in groups:
+                gr_item = gr.find(name='a', class_='groups-list__link')
+                print(gr_item['href'].split('/')[4])
+                id_item = int(gr_item['href'].split('/')[4])
+                groups_dict[gr_item.text + Separators.DATA_META + str(id_item)] = gr_item.text
+            return groups_dict
+
+    @staticmethod
+    @alru_cache
+    async def getLessons(group: int, date: datetime.date):
+        url = SCHEDULE_URL + '/faculty/' + str(94) + '/groups/' + str(
             group) + '?date=' + date.isoformat()
         async with request("GET", url) as html_page:
             text = await html_page.text()

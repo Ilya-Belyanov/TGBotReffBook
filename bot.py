@@ -13,6 +13,7 @@ import data.emojizedb as edb
 from data.messages import *
 from data.keyspace import *
 from data.commands import COMMANDS
+from data.states import StateMachine
 
 from core import keybords as kb
 from core.datetimehelper import *
@@ -31,7 +32,7 @@ dispatcher.middleware.setup(LoggingMiddleware())
 @dispatcher.message_handler(commands=[COMMANDS.START], state='*')
 async def process_start_command(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    keyboard = kb.InitialKeyboard.createKeyboard()
+    keyboard = kb.InitialKeyboard.getKeyboard()
 
     if StateKeyWords.SAVED_GROUP in data:
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.SAVED_GROUP],
@@ -45,10 +46,11 @@ async def process_start_command(message: types.Message, state: FSMContext):
     kb.ModifyKeyboard.addPolyLinkGroupButton(keyboard)
     em = edb.FULL_MOON_WITH_FACE if isDayTime(datetime.datetime.now().time()) else edb.NEW_MOON_WITH_FACE
     await message.answer(emojize(em) + " Добро пожаловать!", reply_markup=keyboard)
+    await StateMachine.MAIN_STATE.set()
 
 
 @dispatcher.message_handler(commands=[COMMANDS.HELP], state='*')
-async def process_help_command(message: types.Message):
+async def process_help_command(message: types.Message, state: FSMContext):
     await message.reply(COMMANDS_MESS, parse_mode=types.ParseMode.MARKDOWN)
 
 
@@ -57,8 +59,10 @@ async def process_param_command(message: types.Message, state: FSMContext):
     answer = md.bold("Последний раз вы ввели следующие параметры") + ":"
     data = await state.get_data()
     answer += "\n"
-    name = await ScheduleParserCashManager.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
-    answer += md.bold("Институт") + " - " + (name if StateKeyWords.INSTITUTE in data else emojize(edb.NO_ENTRY_SIGN))
+    name = emojize(edb.NO_ENTRY_SIGN)
+    if StateKeyWords.INSTITUTE in data:
+        name = await ScheduleParserCashManager.getInstituteNameByID(data[StateKeyWords.INSTITUTE])
+    answer += md.bold("Институт") + " - " + name
     answer += "\n"
     answer += md.bold("Форма") + " - " + (EDUCATION_FORMS_RU[data[StateKeyWords.ED_FORM]]
                                           if StateKeyWords.ED_FORM in data else emojize(edb.NO_ENTRY_SIGN))
@@ -77,14 +81,38 @@ async def process_param_command(message: types.Message, state: FSMContext):
     await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
 
 
-# Работа с обработкой кнопок
-@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state='*')
-async def process_callback_state_std(callback_query: types.CallbackQuery, state: FSMContext):
+# Работа с обработкой кнопок главного меню
+@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state=StateMachine.MAIN_STATE)
+async def process_callback_get_schedule(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.answer_callback_query(callback_query.id)
     await process_answer_institute(callback_query, state)
 
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.INSTITUTE in c.data, state='*')
+# Поиск по группе
+@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchGroupTxt, state=StateMachine.MAIN_STATE)
+async def process_callback_search_groups_command(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, f"Введите группу (для выхода введите /{COMMANDS.START}):")
+    await StateMachine.GROUP_NAME.set()
+
+
+# Обработка введенного текста
+@dispatcher.message_handler(content_types=types.ContentType.TEXT, state=StateMachine.GROUP_NAME)
+async def process_callback_search_groups(msg: types.Message, state: FSMContext):
+    txt = msg.text
+    groups = await ScheduleParserCashManager.getGroupsByText(txt)
+    if len(groups) == 0:
+        await bot.send_message(msg.from_user.id, f"Группы не найдены. Напишите еще раз (или выберите команду /{COMMANDS.START}):")
+        return
+    keyboard = kb.ScheduleKeyboard.createKeyboardRows(groups, IdCommandKeyWords.GROUP, rows_count=2)
+    await bot.send_message(msg.from_user.id, "Найденные группы", reply_markup=keyboard)
+    await bot.send_message(msg.from_user.id, f"Не нашли? Напишите еще раз (для выхода введите /{COMMANDS.START}):")
+
+
+# Обработка кнопок с поиском расписания по фильтрам
+
+# Выбор формы обучения после института
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.INSTITUTE in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_institutes(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(institute=code)
@@ -94,7 +122,8 @@ async def process_callback_institutes(callback_query: types.CallbackQuery, state
     await process_answer_ed_form(callback_query, state)
 
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_FORM in c.data, state='*')
+# Выбор степени обучения после формы обучения
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_FORM in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_education_form(callback_query: types.CallbackQuery, state: FSMContext):
     code = parseForData(callback_query.data)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU, IdCommandKeyWords.ED_DEGREE)
@@ -105,7 +134,8 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
                            reply_markup=keyboard)
 
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_DEGREE in c.data, state='*')
+# Выбор курса после выбора степени образования
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_DEGREE in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_education_degree(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(ed_degree=code)
@@ -134,7 +164,8 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
                            reply_markup=keyboard)
 
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.LEVEL in c.data, state='*')
+# Поиск групп после выбора курса
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.LEVEL in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_level(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(level=code)
@@ -165,6 +196,7 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     await bot.send_message(callback_query.from_user.id, emojize(edb.NEW_MOON) + 'Группа?', reply_markup=keyboard)
 
 
+# Поиск расписания для группы
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.GROUP in c.data, state='*')
 async def process_callback_group(callback_query: types.CallbackQuery, state: FSMContext):
     call_data = parseForData(callback_query.data)
@@ -177,6 +209,7 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
     await process_schedule_dates(callback_query, state, date)
 
     data = await state.get_data()
+
     if data[StateKeyWords.GROUP] != data.get(StateKeyWords.SAVED_GROUP):
         keyboard = InlineKeyboardMarkup(row_width=1)
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[StateKeyWords.GROUP],
@@ -186,8 +219,11 @@ async def process_callback_group(callback_query: types.CallbackQuery, state: FSM
         await bot.send_message(callback_query.from_user.id, "Вы можете сохранить группу в кэш, чтобы не вводить ее "
                                                             "каждый раз", reply_markup=keyboard)
 
+    await StateMachine.MAIN_STATE.set()
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.SAVE_GROUP in c.data, state='*')
+
+# Сохранение группы
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.SAVE_GROUP in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_save_group(callback_query: types.CallbackQuery, state: FSMContext):
     call_data = parseForData(callback_query.data)
     code = parseForData(call_data, sep=Separators.DATA_META)
@@ -198,37 +234,41 @@ async def process_callback_save_group(callback_query: types.CallbackQuery, state
     await bot.send_message(callback_query.from_user.id, f"Группа {group_name} сохранена!")
 
 
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state='*')
+# Поиск расписания на другую даты - обработка кнопки
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state=StateMachine.MAIN_STATE)
 async def process_callback_dates(callback_query: types.CallbackQuery, state: FSMContext):
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
     await process_schedule_dates(callback_query, state, date)
 
 
+# Неизвестная команда
+@dispatcher.message_handler(content_types=types.ContentType.ANY, state='*')
+async def unknown_message(msg: types.Message):
+    await msg.reply(UNKNOWN_MESS, parse_mode=types.ParseMode.MARKDOWN)
+
+
 # Многоразовые функции с вопросами
+
+# Поиск институтов
 async def process_answer_institute(callback_query: types.CallbackQuery, state: FSMContext):
     inst = await ScheduleParserCashManager.getInstitutes()
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(inst, IdCommandKeyWords.INSTITUTE)
     await bot.send_message(callback_query.from_user.id, emojize(edb.FULL_MOON) + ' Институт?', reply_markup=keyboard)
 
 
+# Поиск формы обучения
 async def process_answer_ed_form(callback_query: types.CallbackQuery, state: FSMContext):
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_FORMS_RU, IdCommandKeyWords.ED_FORM)
     await bot.send_message(callback_query.from_user.id, emojize(edb.WANING_GIBBOUS_MOON) + ' Форма обучения?',
                            reply_markup=keyboard)
 
 
+# Поиск расписания по дате и группе в state
 async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
     data = await state.get_data()
     await state.update_data(current_date=date)
 
-    if StateKeyWords.INSTITUTE not in data \
-            or StateKeyWords.GROUP not in data:
-        await bot.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
-                                                            f'сначала!')
-        await process_answer_institute(callback_query, state)
-        return
-
-    lessons = await ScheduleParserCashManager.getLessons(data[StateKeyWords.INSTITUTE], data[StateKeyWords.GROUP], date)
+    lessons = await ScheduleParserCashManager.getLessons(data[StateKeyWords.GROUP], date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
@@ -238,7 +278,3 @@ async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSM
                            reply_markup=keyboard)
 
 
-# Неизвестная команда
-@dispatcher.message_handler(content_types=types.ContentType.ANY, state='*')
-async def unknown_message(msg: types.Message):
-    await msg.reply(UNKNOWN_MESS, parse_mode=types.ParseMode.MARKDOWN)

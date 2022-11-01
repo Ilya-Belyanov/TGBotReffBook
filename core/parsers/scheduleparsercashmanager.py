@@ -12,6 +12,8 @@ class ScheduleParserCashManager:
     COURSE_CASH_PERIOD = 30
     GROUPS_LAST_DT_CASH = datetime.datetime.now().date()
     GROUPS_CASH_PERIOD = 30
+    GROUPS_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+    GROUPS_SEARCH_CASH_PERIOD = 30
     LESSONS_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_CASH_PERIOD = 1
 
@@ -39,11 +41,18 @@ class ScheduleParserCashManager:
         return await ScheduleParser.getGroupsByParameters(faculty, ed_form, degree, level)
 
     @classmethod
-    async def getLessons(cls, faculty: int, group: int, date: datetime.date):
+    async def getGroupsByText(cls, group: str):
+        if daysBetweenNow(cls.GROUPS_SEARCH_LAST_DT_CASH) > cls.GROUPS_SEARCH_CASH_PERIOD:
+            ScheduleParser.getGroupsByText.cache_clear()
+            cls.GROUPS_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+        return await ScheduleParser.getGroupsByText(group)
+
+    @classmethod
+    async def getLessons(cls, group: int, date: datetime.date):
         if daysBetweenNow(cls.LESSONS_LAST_DT_CASH) > cls.LESSONS_CASH_PERIOD:
             ScheduleParser.getLessons.cache_clear()
             cls.LESSONS_LAST_DT_CASH = datetime.datetime.now().date()
-        return await ScheduleParser.getLessons(faculty, group, date)
+        return await ScheduleParser.getLessons(group, date)
 
     @classmethod
     async def getInstituteNameByID(cls, id: int):

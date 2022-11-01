@@ -6,11 +6,13 @@ from data.urls import SCHEDULE_URL
 
 class InitialKeyboard:
     getScheduleTxt = 'schedule'
+    searchGroupTxt = 'search_group'
 
     @staticmethod
-    def createKeyboard():
+    def getKeyboard():
         getScheduleBtn = InlineKeyboardButton('Найти расписание', callback_data=InitialKeyboard.getScheduleTxt)
-        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn)
+        searchGroupBtn = InlineKeyboardButton('Поиск по группе', callback_data=InitialKeyboard.searchGroupTxt)
+        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn)
 
 
 class ModifyKeyboard:
