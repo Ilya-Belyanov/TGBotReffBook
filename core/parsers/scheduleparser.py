@@ -87,6 +87,11 @@ class ScheduleParser:
                     lesson_dict[LessonsKeyWords.END_TIME] = lesson_item[3].text
                     lesson_dict[LessonsKeyWords.NAME] = lesson_item[5].text
 
+                    # Type
+                    lesson_type = lesson.find(name='div', class_='lesson__type')
+                    if lesson_type is not None:
+                        lesson_dict[LessonsKeyWords.TYPE] = lesson_type.text
+
                     # Groups
                     lesson_groups = lesson.find(name='div', class_='lesson-groups__list')
                     if lesson_groups is not None:

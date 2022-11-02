@@ -23,6 +23,12 @@ def beautifySchedule(schedule: list, date: datetime.date):
             result_str += "\n"
             result_str += md.bold(lesson[LessonsKeyWords.NAME])
 
+            # Тип занятия
+            if LessonsKeyWords.TYPE in lesson:
+                result_str += "\n"
+                result_str += emojize(f"{edb.LOWER_LEFT_FOUNTAIN_PEN} ")
+                result_str += lesson[LessonsKeyWords.TYPE]
+
             # Группы
             if LessonsKeyWords.GROUPS_NAME in lesson:
                 result_str += "\n"

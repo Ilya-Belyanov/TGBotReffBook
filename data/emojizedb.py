@@ -16,3 +16,4 @@ NEW_MOON = ":new_moon:"
 CALENDAR = ":calendar:"
 
 NO_ENTRY_SIGN = ":no_entry_sign:"
+LOWER_LEFT_FOUNTAIN_PEN = ":lower_left_fountain_pen:"
