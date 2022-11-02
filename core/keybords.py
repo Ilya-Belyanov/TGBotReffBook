@@ -6,7 +6,7 @@ from data.urls import SCHEDULE_URL
 
 class InitialKeyboard:
     getScheduleTxt = 'schedule'
-    searchGroupTxt = 'search_group'
+    searchGroupTxt = 'search_grp'
 
     @staticmethod
     def getKeyboard():
