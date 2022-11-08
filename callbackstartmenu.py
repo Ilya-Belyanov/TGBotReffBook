@@ -22,5 +22,14 @@ async def process_callback_get_schedule(callback_query: types.CallbackQuery, sta
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchGroupTxt, state='*')
 async def process_callback_search_groups_command(callback_query: types.CallbackQuery):
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f"Введите группу (для выхода введите /{COMMANDS.START}):")
+    await bot_object.send_message(callback_query.from_user.id, f"Введите группу (для выхода /{COMMANDS.START}):")
     await StateMachine.GROUP_NAME.set()
+
+
+# Поиск по группе
+@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchTeacherTxt, state='*')
+async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
+    await bot_object.answer_callback_query(callback_query.id)
+    await bot_object.send_message(callback_query.from_user.id, f"Введите имя преподавателя "
+                                                               f"(для выхода /{COMMANDS.START}):")
+    await StateMachine.TEACHER_NAME.set()

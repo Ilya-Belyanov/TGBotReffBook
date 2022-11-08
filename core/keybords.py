@@ -7,12 +7,14 @@ from data.urls import SCHEDULE_URL
 class InitialKeyboard:
     getScheduleTxt = 'schedule'
     searchGroupTxt = 'search_grp'
+    searchTeacherTxt = 'search_teacher'
 
     @staticmethod
     def getKeyboard():
         getScheduleBtn = InlineKeyboardButton('Найти расписание', callback_data=InitialKeyboard.getScheduleTxt)
         searchGroupBtn = InlineKeyboardButton('Поиск по группе', callback_data=InitialKeyboard.searchGroupTxt)
-        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn)
+        searchTeacherBtn = InlineKeyboardButton('Поиск по преподавателю', callback_data=InitialKeyboard.searchTeacherTxt)
+        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn).row(searchTeacherBtn)
 
 
 class ModifyKeyboard:

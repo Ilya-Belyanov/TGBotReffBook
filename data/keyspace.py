@@ -35,6 +35,7 @@ class IdCommandKeyWords:
     ED_DEGREE = "ed_degree"
     LEVEL = "level"
     GROUP = "group"
+    TEACHER = "teacher"
     SAVE_GROUP = "save"
     DATES = "dates"
 
@@ -51,6 +52,8 @@ class StateKeyWords:
     LEVEL = "level"
     GROUP = "group"
     GROUP_NAME = "group_name"
+    TEACHER = "teacher"
+    TEACHER_NAME = "teacher_name"
     SAVED_GROUP = "saved_group"
     SAVED_GROUP_NAME = "saved_group_name"
 

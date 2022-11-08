@@ -12,7 +12,7 @@ from core import keybords as kb
 from core.datetimehelper import *
 from core.callbackparser import parseForData
 
-from corefunctions import process_schedule_dates
+from corefunctions import process_schedule_dates, process_schedule_teacher_dates
 
 
 # Поиск расписания для группы
@@ -51,3 +51,16 @@ async def process_callback_save_group(callback_query: types.CallbackQuery, state
     await state.update_data(saved_group_name=group_name)
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f"Группа {group_name} сохранена!")
+
+
+# Поиск расписания для группы
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.TEACHER in c.data, state='*')
+async def process_callback_teacher(callback_query: types.CallbackQuery, state: FSMContext):
+    call_data = parseForData(callback_query.data)
+    code = parseForData(call_data, sep=Separators.DATA_META)
+    await state.update_data(teacher=code)
+    date = startDayOfWeek(datetime.date.today())
+
+    await process_schedule_teacher_dates(callback_query, state, date)
+
+    await StateMachine.TEACHER_LESSON_STATE.set()

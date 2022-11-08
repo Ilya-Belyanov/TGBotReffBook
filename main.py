@@ -19,7 +19,10 @@ import callbackfilterstate
 # Состояние поиска группы по имени
 import callbackgroupsearchstate
 
-# Состояние просмотра расписания
+# Состояние поиска преподавателя по имени
+import callbackteachersearchstate
+
+'''Состояние просмотра расписания'''
 import callbacklessonstate
 
 # Не смогли обработать команду (текст или кнопку, так как в другом состоянии)
