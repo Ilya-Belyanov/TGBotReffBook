@@ -1,18 +1,20 @@
-from bot import dispatcher, bot_object
-from aiogram import types
 import itertools
-from data.states import StateMachine
+
+from aiogram import types
+
+from bot import dispatcher, bot_object
 
 from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from aiogram.dispatcher import FSMContext
+from core import keybords as kb
+
+from data.states import StateMachine
 from data.commands import COMMANDS
 from data.keyspace import *
-from core import keybords as kb
 
 
 # Обработка введенного имени преподавателя
 @dispatcher.message_handler(content_types=types.ContentType.TEXT, state=StateMachine.TEACHER_NAME)
-async def process_callback_search_teacher(msg: types.Message, state: FSMContext):
+async def process_callback_search_teacher(msg: types.Message):
     txt = msg.text
     groups = await ScheduleParserCashManager.getTeacherByText(txt)
     if len(groups) == 0:

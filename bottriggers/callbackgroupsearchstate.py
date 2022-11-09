@@ -1,17 +1,19 @@
-from bot import dispatcher, bot_object
 from aiogram import types
-from data.states import StateMachine
+
+from aiogram.dispatcher import FSMContext
+from bot import dispatcher, bot_object
 
 from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from aiogram.dispatcher import FSMContext
+from core import keybords as kb
+
+from data.states import StateMachine
 from data.commands import COMMANDS
 from data.keyspace import *
-from core import keybords as kb
 
 
 # Обработка введенного текста
 @dispatcher.message_handler(content_types=types.ContentType.TEXT, state=StateMachine.GROUP_NAME)
-async def process_callback_search_groups(msg: types.Message, state: FSMContext):
+async def process_callback_search_groups(msg: types.Message):
     txt = msg.text
     groups = await ScheduleParserCashManager.getGroupsByText(txt)
     if len(groups) == 0:

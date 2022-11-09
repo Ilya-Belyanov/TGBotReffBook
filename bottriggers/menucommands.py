@@ -1,18 +1,25 @@
 from bot import dispatcher
-from data.commands import COMMANDS
-from data.messages import *
-import data.emojizedb as edb
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+
 from aiogram import types
+import aiogram.utils.markdown as md
+from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import FSMContext
+
 from data.keyspace import *
+import data.emojizedb as edb
+from data.commands import COMMANDS
+from data.messages import COMMANDS_MESS
+
+from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
 
+# Ответ на запрос /help
 @dispatcher.message_handler(commands=[COMMANDS.HELP], state='*')
-async def process_help_command(message: types.Message, state: FSMContext):
+async def process_help_command(message: types.Message):
     await message.reply(COMMANDS_MESS, parse_mode=types.ParseMode.MARKDOWN)
 
 
+# Ответ на запрос /parameters
 @dispatcher.message_handler(commands=[COMMANDS.PARAMETERS], state='*')
 async def process_param_command(message: types.Message, state: FSMContext):
     answer = md.bold("Последний раз вы ввели следующие параметры") + ":"

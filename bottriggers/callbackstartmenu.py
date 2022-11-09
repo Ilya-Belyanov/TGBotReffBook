@@ -1,16 +1,19 @@
-from bot import dispatcher, bot_object
-from core import keybords as kb
 from aiogram import types
-from data.messages import *
 from aiogram.dispatcher import FSMContext
+
+from bot import dispatcher, bot_object
+
+from core import keybords as kb
+
+from data.messages import *
 from data.states import StateMachine
 
-from corefunctions import process_answer_institute
+from bottriggers.corefunctions import process_answer_institute
 
 # Функции можно обрабатывать со всех состояний
 
 
-# Работа с обработкой кнопок главного меню
+# Поиск институтов и начало поиска группы по фильтру
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state='*')
 async def process_callback_get_schedule(callback_query: types.CallbackQuery, state: FSMContext):
     await bot_object.answer_callback_query(callback_query.id)
