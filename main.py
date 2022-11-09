@@ -22,6 +22,9 @@ import bottriggers.callbackgroupsearchstate
 # Состояние поиска преподавателя по имени
 import bottriggers.callbackteachersearchstate
 
+# Состояние поиска преподавателя по имени
+import bottriggers.callbackplacesearchstate
+
 '''Состояние просмотра расписания'''
 import bottriggers.callbacklessonstate
 

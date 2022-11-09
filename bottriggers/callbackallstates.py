@@ -11,7 +11,7 @@ from core import keybords as kb
 from core.datetimehelper import *
 from core.callbackparser import parseForData
 
-from bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates
+from bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
 
 
 # Поиск расписания для группы
@@ -61,3 +61,16 @@ async def process_callback_schedule_teacher(callback_query: types.CallbackQuery,
     date = startDayOfWeek(datetime.date.today())
     await process_schedule_teacher_dates(callback_query, state, date)
     await StateMachine.TEACHER_LESSON_STATE.set()
+
+
+# Поиск расписания для аудитории
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.PLACE in c.data, state='*')
+async def process_callback_schedule_place(callback_query: types.CallbackQuery, state: FSMContext):
+    call_data = parseForData(callback_query.data)
+    code_aud = parseForData(call_data, sep=Separators.DATA_META)
+    code_building = parseForData(call_data, index=0, sep=Separators.DATA_META)
+    await state.update_data(code_aud=code_aud)
+    await state.update_data(code_building=code_building)
+    date = startDayOfWeek(datetime.date.today())
+    await process_schedule_place_dates(callback_query, state, date)
+    await StateMachine.PLACE_LESSON_STATE.set()

@@ -29,10 +29,19 @@ async def process_callback_search_groups_command(callback_query: types.CallbackQ
     await StateMachine.GROUP_NAME.set()
 
 
-# Поиск по группе
+# Поиск по преподавателю
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchTeacherTxt, state='*')
 async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f"Введите имя преподавателя "
                                                                f"(для выхода /{COMMANDS.START}):")
     await StateMachine.TEACHER_NAME.set()
+
+
+# Поиск по аудитории
+@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchPlaceTxt, state='*')
+async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
+    await bot_object.answer_callback_query(callback_query.id)
+    await bot_object.send_message(callback_query.from_user.id, f"Введите названии аудитории "
+                                                               f"(для выхода /{COMMANDS.START}):")
+    await StateMachine.PLACE_NAME.set()

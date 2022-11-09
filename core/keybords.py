@@ -8,21 +8,27 @@ class InitialKeyboard:
     getScheduleTxt = 'schedule'
     searchGroupTxt = 'search_grp'
     searchTeacherTxt = 'search_teacher'
+    searchPlaceTxt = 'search_place'
 
     @staticmethod
     def getKeyboard():
         getScheduleBtn = InlineKeyboardButton('Найти расписание', callback_data=InitialKeyboard.getScheduleTxt)
         searchGroupBtn = InlineKeyboardButton('Поиск по группе', callback_data=InitialKeyboard.searchGroupTxt)
-        searchTeacherBtn = InlineKeyboardButton('Поиск по преподавателю', callback_data=InitialKeyboard.searchTeacherTxt)
-        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn).row(searchTeacherBtn)
+        searchTeacherBtn = InlineKeyboardButton('Поиск по преподавателю',
+                                                callback_data=InitialKeyboard.searchTeacherTxt)
+        searchPlaceBtn = InlineKeyboardButton('Поиск по аудитории',
+                                              callback_data=InitialKeyboard.searchPlaceTxt)
+        return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn).row(searchTeacherBtn).row(
+            searchPlaceBtn)
 
 
 class ModifyKeyboard:
     @staticmethod
-    def addCacheGroupButton(markup: InlineKeyboardMarkup, group_id: int, group_name: str, key_word: str, text: str = "Группа"):
+    def addCacheGroupButton(markup: InlineKeyboardMarkup, group_id: int, group_name: str, key_word: str,
+                            text: str = "Группа"):
         getCachedScheduleBtn = InlineKeyboardButton(text + f' {group_name}',
                                                     callback_data=key_word + Separators.KEY_DATA
-                                                    + group_name + Separators.DATA_META + str(group_id))
+                                                                  + group_name + Separators.DATA_META + str(group_id))
         markup.add(getCachedScheduleBtn)
 
     @staticmethod

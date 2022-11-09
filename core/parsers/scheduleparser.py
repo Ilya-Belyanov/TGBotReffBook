@@ -84,6 +84,31 @@ class ScheduleParser:
 
     @staticmethod
     @alru_cache
+    async def getPlacesByText(place: str) -> dict:
+        """API запрос для получения подходящих групп по тексту"""
+        url = SCHEDULE_API_URL + f"/search/rooms?q={place}"
+        async with request("GET", url) as html_page:
+            answer = await html_page.json()
+            if answer["rooms"] is None:
+                return dict()
+
+            groups_dict = dict()
+            for gr in answer["rooms"]:
+                groups_dict[str(gr["building"]["id"]) + Separators.DATA_META + str(gr["id"])] = gr["building"]["name"] \
+                                                                                                + ", " + gr["name"]
+            return groups_dict
+
+    @staticmethod
+    @alru_cache
+    async def getLessons(group: int, date: datetime.date) -> list:
+        """API запрос для получения занятий группы на неделю, где присутсвуте дата = date"""
+        url = SCHEDULE_API_URL + '/scheduler/' + str(group) + '?date=' + date.isoformat()
+        async with request("GET", url) as html_page:
+            answer = await html_page.json()
+            return ScheduleParser.parseLessons(answer)
+
+    @staticmethod
+    @alru_cache
     async def getTeacherLessons(teacher: int, date: datetime.date) -> list:
         """API запрос для получения занятий преподавателя на неделю, где присутсвуте дата = date"""
         url = SCHEDULE_API_URL + '/teachers/' + str(teacher) + "/scheduler?date=" + date.isoformat()
@@ -93,9 +118,9 @@ class ScheduleParser:
 
     @staticmethod
     @alru_cache
-    async def getLessons(group: int, date: datetime.date) -> list:
-        """API запрос для получения занятий группы на неделю, где присутсвуте дата = date"""
-        url = SCHEDULE_API_URL + '/scheduler/' + str(group) + '?date=' + date.isoformat()
+    async def getPlaceLessons(building: int, place: int, date: datetime.date) -> list:
+        """API запрос для получения занятий преподавателя на неделю, где присутсвуте дата = date"""
+        url = SCHEDULE_API_URL + '/buildings/' + str(building) + '/rooms/' + str(place) + "/scheduler?date=" + date.isoformat()
         async with request("GET", url) as html_page:
             answer = await html_page.json()
             return ScheduleParser.parseLessons(answer)

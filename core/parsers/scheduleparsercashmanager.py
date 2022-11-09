@@ -11,14 +11,22 @@ class ScheduleParserCashManager:
     COURSE_CASH_PERIOD = 30
     GROUPS_LAST_DT_CASH = datetime.datetime.now().date()
     GROUPS_CASH_PERIOD = 30
+
     GROUPS_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
     GROUPS_SEARCH_CASH_PERIOD = 2
+
     TEACHER_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
-    TEACHER_SEARCH_CASH_PERIOD = 2
+    TEACHER_SEARCH_CASH_PERIOD = 1
+
+    PLACES_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+    PLACES_SEARCH_CASH_PERIOD = 1
+
     LESSONS_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_CASH_PERIOD = 1
     LESSONS_TEACHER_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_TEACHER_CASH_PERIOD = 1
+    LESSONS_PLACE_LAST_DT_CASH = datetime.datetime.now().date()
+    LESSONS_PLACE_CASH_PERIOD = 1
 
     @classmethod
     async def getInstitutes(cls):
@@ -65,6 +73,13 @@ class ScheduleParserCashManager:
         return await ScheduleParser.getTeacherByText(group)
 
     @classmethod
+    async def getPlacesByText(cls, place: str):
+        if daysBetweenNow(cls.PLACES_SEARCH_LAST_DT_CASH) > cls.PLACES_SEARCH_CASH_PERIOD:
+            ScheduleParser.getPlacesByText.cache_clear()
+            cls.PLACES_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+        return await ScheduleParser.getPlacesByText(place)
+
+    @classmethod
     async def getLessons(cls, group: int, date: datetime.date):
         if daysBetweenNow(cls.LESSONS_LAST_DT_CASH) > cls.LESSONS_CASH_PERIOD:
             ScheduleParser.getLessons.cache_clear()
@@ -77,6 +92,13 @@ class ScheduleParserCashManager:
             ScheduleParser.getTeacherLessons.cache_clear()
             cls.LESSONS_TEACHER_LAST_DT_CASH = datetime.datetime.now().date()
         return await ScheduleParser.getTeacherLessons(teacher, date)
+
+    @classmethod
+    async def getPlaceLessons(cls, building: int, place: int, date: datetime.date):
+        if daysBetweenNow(cls.LESSONS_PLACE_LAST_DT_CASH) > cls.LESSONS_PLACE_CASH_PERIOD:
+            ScheduleParser.getPlaceLessons.cache_clear()
+            cls.LESSONS_PLACE_LAST_DT_CASH = datetime.datetime.now().date()
+        return await ScheduleParser.getPlaceLessons(building, place, date)
 
     @classmethod
     async def getInstituteNameByID(cls, id: int):
