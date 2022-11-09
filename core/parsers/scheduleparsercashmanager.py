@@ -5,7 +5,6 @@ from core.datetimehelper import daysBetweenNow
 
 
 class ScheduleParserCashManager:
-    INSTITUTE_CASH = dict()
     INSTITUTE_LAST_DT_CASH = datetime.datetime.now().date()
     INSTITUTE_CASH_PERIOD = 30
     COURSE_LAST_DT_CASH = datetime.datetime.now().date()
@@ -23,10 +22,10 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getInstitutes(cls):
-        if len(cls.INSTITUTE_CASH) == 0 or daysBetweenNow(cls.INSTITUTE_LAST_DT_CASH) > cls.INSTITUTE_CASH_PERIOD:
-            cls.INSTITUTE_CASH = await ScheduleParser.getInstitutes()
+        if daysBetweenNow(cls.INSTITUTE_LAST_DT_CASH) > cls.INSTITUTE_CASH_PERIOD:
+            ScheduleParser.getInstitutes.cache_clear()
             cls.INSTITUTE_LAST_DT_CASH = datetime.datetime.now().date()
-        return cls.INSTITUTE_CASH
+        return await ScheduleParser.getInstitutes()
 
     @classmethod
     async def getCourses(cls, faculty: int, ed_form: str, degree: int):

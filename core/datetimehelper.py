@@ -1,5 +1,9 @@
 import datetime
 
+WEEKDAYS = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
+MONTHS = {1: "янв", 2: "фев", 3: "март", 4: "апр", 5: "май", 6: "июнь", 7: "июль",
+          8: "авг", 9: "сен", 10: "окт", 11: "нояб", 12: "дек"}
+
 
 def startDayOfWeek(date: datetime.date) -> datetime.date:
     return date - datetime.timedelta(days=(date.isoweekday() % 7) - 1)
@@ -31,3 +35,11 @@ def daysBetween(start: datetime.date, end: datetime.date):
 
 def daysBetweenNow(date: datetime.date):
     return daysBetween(date, datetime.datetime.now().date())
+
+
+def weekday_str(date: datetime.date):
+    return WEEKDAYS[date.weekday()]
+
+
+def month_str(date: datetime.date):
+    return MONTHS[date.month]

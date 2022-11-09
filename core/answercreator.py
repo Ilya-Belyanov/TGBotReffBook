@@ -16,7 +16,9 @@ def beautifySchedule(schedule: list, date: datetime.date):
     result_list.append(result_str)
     result_str = ""
     for day in schedule:
-        result_str += md.code(day[LessonsKeyWords.DAY]) + 2 * "\n"
+        day_lessons = datetime.datetime.strptime(day[LessonsKeyWords.DAY], "%Y-%m-%d")
+
+        result_str += md.code(day_lessons.strftime("%d ") + datetimehelper.month_str(day_lessons) + ", " + datetimehelper.weekday_str(day_lessons)) + 2 * "\n"
         for lesson in day[LessonsKeyWords.LESSONS]:
             result_str += md.italic(lesson[LessonsKeyWords.START_TIME]) + " \- "
             result_str += md.italic(lesson[LessonsKeyWords.END_TIME])
