@@ -54,6 +54,9 @@ class ScheduleParser:
         url = SCHEDULE_API_URL + f"/search/groups?q={group}"
         async with request("GET", url) as html_page:
             answer = await html_page.json()
+            if answer["groups"] is None:
+                return dict()
+
             groups_dict = dict()
             for gr in answer["groups"]:
                 groups_dict[gr["name"] + Separators.DATA_META + str(gr["id"])] = gr["name"]
@@ -71,6 +74,9 @@ class ScheduleParser:
         url = SCHEDULE_API_URL + f"/search/teachers?q={teacher}"
         async with request("GET", url) as html_page:
             answer = await html_page.json()
+            if answer["teachers"] is None:
+                return dict()
+
             teachers_dict = dict()
             for tcr in answer["teachers"]:
                 teachers_dict[str(tcr["id"])] = tcr["full_name"]
