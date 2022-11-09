@@ -1,6 +1,4 @@
 aiogram==2.22.2
 emoji==1.7.0
-bs4==0.0.1
 async_lru==1.0.3
 aiohttp~=3.8.3
-beautifulsoup4~=4.11.1
