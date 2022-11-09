@@ -69,6 +69,17 @@ class ScheduleParser:
 
     @staticmethod
     @alru_cache
+    async def getTeacherNameByID(id: int) -> str:
+        """API запрос для получения подходящих преподавателей по тексту"""
+        url = SCHEDULE_API_URL + f"/teachers/{id}"
+        async with request("GET", url) as html_page:
+            answer = await html_page.json()
+            if answer.get("error"):
+                return str()
+            return answer["full_name"]
+
+    @staticmethod
+    @alru_cache
     async def getTeacherByText(teacher: str) -> dict:
         """API запрос для получения подходящих преподавателей по тексту"""
         url = SCHEDULE_API_URL + f"/search/teachers?q={teacher}"

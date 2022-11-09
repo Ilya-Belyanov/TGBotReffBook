@@ -24,11 +24,18 @@ class InitialKeyboard:
 
 class ModifyKeyboard:
     @staticmethod
-    def addCacheGroupButton(markup: InlineKeyboardMarkup, group_id: int, group_name: str, key_word: str,
+    def addCacheGroupButton(markup: InlineKeyboardMarkup, main_data: int, group_name: str, key_word: str,
                             text: str = "Группа"):
         getCachedScheduleBtn = InlineKeyboardButton(text + f' {group_name}',
                                                     callback_data=key_word + Separators.KEY_DATA
-                                                                  + group_name + Separators.DATA_META + str(group_id))
+                                                                  + group_name + Separators.DATA_META + str(main_data))
+        markup.add(getCachedScheduleBtn)
+
+    @staticmethod
+    def addCacheTeacherButton(markup: InlineKeyboardMarkup, main_data: int, teacher_name: str, key_word: str,
+                            text: str = "Преподаватель"):
+        getCachedScheduleBtn = InlineKeyboardButton(text + f' {teacher_name}',
+                                                    callback_data=key_word + Separators.KEY_DATA + str(main_data))
         markup.add(getCachedScheduleBtn)
 
     @staticmethod

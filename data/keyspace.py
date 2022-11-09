@@ -55,12 +55,20 @@ class StateKeyWords:
     ED_DEGREE = 'ed_degree'
     LEVEL = "level"
     GROUP = "group"
+
     GROUP_NAME = "group_name"
+
     TEACHER = "teacher"
+    TEACHER_NAME = "teacher_name"
+
     CODE_AUD = "code_aud"
     CODE_BUILDING = "code_building"
+
     SAVED_GROUP = "saved_group"
     SAVED_GROUP_NAME = "saved_group_name"
+
+    SAVED_TEACHER = "saved_teacher"
+    SAVED_TEACHER_NAME = "saved_teacher_name"
 
 
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}

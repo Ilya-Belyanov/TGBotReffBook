@@ -28,6 +28,9 @@ class ScheduleParserCashManager:
     LESSONS_PLACE_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_PLACE_CASH_PERIOD = 1
 
+    TEACHER_BY_ID_LAST_DT_CASH = datetime.datetime.now().date()
+    TEACHER_BY_ID_CASH_PERIOD = 1
+
     @classmethod
     async def getInstitutes(cls):
         if daysBetweenNow(cls.INSTITUTE_LAST_DT_CASH) > cls.INSTITUTE_CASH_PERIOD:
@@ -104,4 +107,11 @@ class ScheduleParserCashManager:
     async def getInstituteNameByID(cls, id: int):
         inst = await cls.getInstitutes()
         return inst.get(id)
+
+    @classmethod
+    async def getTeacherNameByID(cls, id: int):
+        if daysBetweenNow(cls.TEACHER_BY_ID_LAST_DT_CASH) > cls.TEACHER_BY_ID_CASH_PERIOD:
+            ScheduleParser.getTeacherNameByID.cache_clear()
+            cls.TEACHER_BY_ID_LAST_DT_CASH = datetime.datetime.now().date()
+        return await ScheduleParser.getTeacherNameByID(id)
 
