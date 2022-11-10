@@ -16,6 +16,7 @@ from bottriggers.corefunctions import process_answer_institute
 # Поиск институтов и начало поиска группы по фильтру
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.getScheduleTxt, state='*')
 async def process_callback_get_schedule(callback_query: types.CallbackQuery, state: FSMContext):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
     await process_answer_institute(callback_query, state)
     await StateMachine.FILTER_GROUP.set()
@@ -24,6 +25,7 @@ async def process_callback_get_schedule(callback_query: types.CallbackQuery, sta
 # Поиск по группе
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchGroupTxt, state='*')
 async def process_callback_search_groups_command(callback_query: types.CallbackQuery):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f"Введите группу (для выхода /{COMMANDS.START}):")
     await StateMachine.GROUP_NAME.set()
@@ -32,6 +34,7 @@ async def process_callback_search_groups_command(callback_query: types.CallbackQ
 # Поиск по преподавателю
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchTeacherTxt, state='*')
 async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f"Введите имя преподавателя "
                                                                f"(для выхода /{COMMANDS.START}):")
@@ -41,6 +44,7 @@ async def process_callback_search_teacher_command(callback_query: types.Callback
 # Поиск по аудитории
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchPlaceTxt, state='*')
 async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f"Введите названии аудитории "
                                                                f"(для выхода /{COMMANDS.START}):")

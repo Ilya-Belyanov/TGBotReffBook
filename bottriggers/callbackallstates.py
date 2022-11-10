@@ -44,6 +44,7 @@ async def process_callback_schedule_group(callback_query: types.CallbackQuery, s
 # Сохранение группы
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.SAVE_GROUP in c.data, state='*')
 async def process_callback_save_group(callback_query: types.CallbackQuery, state: FSMContext):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     call_data = parseForData(callback_query.data)
     code = parseForData(call_data, sep=Separators.DATA_META)
     group_name = parseForData(call_data, index=0, sep=Separators.DATA_META)
@@ -81,6 +82,7 @@ async def process_callback_schedule_teacher(callback_query: types.CallbackQuery,
 # Сохранение группы
 @dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.SAVE_TEACHER in c.data, state='*')
 async def process_callback_save_teacher(callback_query: types.CallbackQuery, state: FSMContext):
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     call_data = parseForData(callback_query.data)
     code = parseForData(call_data, sep=Separators.DATA_META)
     teacher_name = await ScheduleParserCashManager.getTeacherNameByID(code)

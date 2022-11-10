@@ -150,28 +150,28 @@ class ScheduleParser:
                 lesson_dict[LessonsKeyWords.END_TIME] = lesson["time_end"]
                 lesson_dict[LessonsKeyWords.NAME] = lesson["subject_short"]
                 # Type
-                if "typeObj" in lesson:
+                if lesson.get("typeObj") is not None:
                     lesson_dict[LessonsKeyWords.TYPE] = lesson.get("typeObj")["name"]
 
                 # Groups
-                if len(lesson["groups"]) != 0:
+                if lesson.get("groups") is not None:
                     lesson_dict[LessonsKeyWords.GROUPS_NAME] = [group["name"] for group in lesson["groups"]]
                     lesson_dict[LessonsKeyWords.GROUPS_LINK] = [
                         f"/faculty/{group['faculty']['id']}/groups/{group['id']}" for group in lesson["groups"]]
 
                 # Teacher
-                if len(lesson["teachers"]) != 0:
+                if lesson.get("teachers") is not None:
                     lesson_dict[LessonsKeyWords.TEACHER_NAME] = lesson["teachers"][0]["full_name"]
                     lesson_dict[LessonsKeyWords.TEACHER_LINK] = f"/teachers/{lesson['teachers'][0]['id']}"
 
                 # Place
-                if len(lesson["auditories"]) != 0:
+                if lesson.get("auditories") is not None:
                     auditori = lesson["auditories"][0]
                     lesson_dict[LessonsKeyWords.PLACE_NAME] = auditori["building"]["name"] + ", " + auditori["name"]
                     lesson_dict[LessonsKeyWords.PLACE_LINK] = f"/places/{auditori['building']['id']}/{auditori['id']}"
 
                 # Resource
-                if len(lesson["lms_url"]) != 0:
+                if lesson.get("lms_url") is not None and lesson.get("lms_url") != "":
                     lesson_dict[LessonsKeyWords.RESOURCE_NAME] = "СДО"
                     lesson_dict[LessonsKeyWords.RESOURCE_LINK] = lesson["lms_url"]
                 lessons_at_day.append(lesson_dict)
