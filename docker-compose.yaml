@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   poly-schedule-bot:
-    image: 031983/poly-schedule-bot:stable
+    image: 031983/poly-schedule-bot:latest
     secrets:
       - token
 

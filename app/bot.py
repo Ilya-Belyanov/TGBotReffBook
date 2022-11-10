@@ -4,13 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
-<<<<<<< HEAD
-import config
-
 logging.basicConfig(level=logging.INFO, filename='app.log', filemode='w')
-=======
-logging.basicConfig(level=logging.INFO)
->>>>>>> 44754cd... Create Docker build
 
 try:
     token = open('/run/secrets/token', 'r').readline()
