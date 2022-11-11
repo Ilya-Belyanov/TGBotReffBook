@@ -6,7 +6,6 @@ from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 from core import keybords as kb
 
 from data.states import StateMachine
-from data.commands import COMMANDS
 from data.keyspace import *
 
 
@@ -15,9 +14,10 @@ from data.keyspace import *
 async def process_callback_search_place(msg: types.Message):
     txt = msg.text
     places = await ScheduleParserCashManager.getPlacesByText(txt)
+    menu = kb.InitialKeyboard.getToMenuKeyboard()
     if len(places) == 0:
-        await bot_object.send_message(msg.from_user.id, f"Аудитории не найдены. Напишите еще раз (или выберите команду /{COMMANDS.START}):")
+        await bot_object.send_message(msg.from_user.id, f"Аудитории не найдены. Напишите еще раз:", reply_markup=menu)
         return
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(places, IdCommandKeyWords.PLACE, rows_count=1)
     await bot_object.send_message(msg.from_user.id, "Найденные аудитории", reply_markup=keyboard)
-    await bot_object.send_message(msg.from_user.id, f"Не нашли? Напишите еще раз (для выхода введите /{COMMANDS.START}):")
+    await bot_object.send_message(msg.from_user.id, f"Не нашли? Напишите еще раз:", reply_markup=menu)

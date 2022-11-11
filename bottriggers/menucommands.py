@@ -1,10 +1,10 @@
-from bot import dispatcher
-
 from aiogram import types
 import aiogram.utils.markdown as md
 from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup
+
+from bot import dispatcher
 
 from core import keybords as kb
 from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
@@ -13,6 +13,14 @@ from data.keyspace import *
 import data.emojizedb as edb
 from data.commands import COMMANDS
 from data.messages import COMMANDS_MESS
+
+from bottriggers.corefunctions import process_start_menu
+
+
+# Вызов главного меню
+@dispatcher.message_handler(commands=[COMMANDS.START], state='*')
+async def process_start_command(message: types.Message, state: FSMContext):
+    await process_start_menu(message.from_user.id, state)
 
 
 # Ответ на запрос /help

@@ -1,18 +1,30 @@
 from bot import bot_object
 
-from aiogram.dispatcher import FSMContext
-from data.keyspace import *
-from core import keybords as kb
 from aiogram import types
+from aiogram.utils.emoji import emojize
+from aiogram.dispatcher import FSMContext
+
+from core import keybords as kb
 from core.datetimehelper import *
 from core.answercreator import beautifySchedule
-from aiogram.utils.emoji import emojize
-import data.emojizedb as edb
-
 from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
+from data.keyspace import *
+import data.emojizedb as edb
+from data.states import StateMachine
 
 # Многоразовые функции с вопросами
+
+
+# Вызов стартового меню
+async def process_start_menu(id: int, state: FSMContext):
+    keyboard = kb.InitialKeyboard.getKeyboard()
+    kb.ModifyKeyboard.addPolyLinkGroupButton(keyboard)
+    em = edb.FULL_MOON_WITH_FACE if isDayTime(datetime.datetime.now().time()) else edb.NEW_MOON_WITH_FACE
+    await bot_object.send_message(id, emojize(em) + " Добро пожаловать!", reply_markup=keyboard)
+    # Используется, чтобы сбросить предыдущее состояние (неважно какое оно было)
+    await StateMachine.MAIN_STATE.set()
+
 
 # Поиск институтов
 async def process_answer_institute(callback_query: types.CallbackQuery, state: FSMContext):

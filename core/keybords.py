@@ -9,6 +9,7 @@ class InitialKeyboard:
     searchGroupTxt = 'search_grp'
     searchTeacherTxt = 'search_teacher'
     searchPlaceTxt = 'search_place'
+    toMenuTxt = 'menu'
 
     @staticmethod
     def getKeyboard():
@@ -20,6 +21,11 @@ class InitialKeyboard:
                                               callback_data=InitialKeyboard.searchPlaceTxt)
         return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn).row(searchTeacherBtn).row(
             searchPlaceBtn)
+
+    @staticmethod
+    def getToMenuKeyboard():
+        toMenuBtn = InlineKeyboardButton('Меню', callback_data=InitialKeyboard.toMenuTxt)
+        return InlineKeyboardMarkup(row_width=1).row(toMenuBtn)
 
 
 class ModifyKeyboard:

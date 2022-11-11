@@ -103,3 +103,4 @@ async def process_callback_schedule_place(callback_query: types.CallbackQuery, s
     date = startDayOfWeek(datetime.date.today())
     await process_schedule_place_dates(callback_query, state, date)
     await StateMachine.PLACE_LESSON_STATE.set()
+

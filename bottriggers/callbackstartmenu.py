@@ -5,10 +5,9 @@ from bot import dispatcher, bot_object
 
 from core import keybords as kb
 
-from data.messages import *
 from data.states import StateMachine
 
-from bottriggers.corefunctions import process_answer_institute
+from bottriggers.corefunctions import process_answer_institute, process_start_menu
 
 # Функции можно обрабатывать со всех состояний
 
@@ -27,7 +26,8 @@ async def process_callback_get_schedule(callback_query: types.CallbackQuery, sta
 async def process_callback_search_groups_command(callback_query: types.CallbackQuery):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f"Введите группу (для выхода /{COMMANDS.START}):")
+    menu = kb.InitialKeyboard.getToMenuKeyboard()
+    await bot_object.send_message(callback_query.from_user.id, f"Введите группу:", reply_markup=menu)
     await StateMachine.GROUP_NAME.set()
 
 
@@ -36,16 +36,23 @@ async def process_callback_search_groups_command(callback_query: types.CallbackQ
 async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f"Введите имя преподавателя "
-                                                               f"(для выхода /{COMMANDS.START}):")
+    menu = kb.InitialKeyboard.getToMenuKeyboard()
+    await bot_object.send_message(callback_query.from_user.id, f"Введите имя преподавателя:", reply_markup=menu)
     await StateMachine.TEACHER_NAME.set()
 
 
 # Поиск по аудитории
 @dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.searchPlaceTxt, state='*')
-async def process_callback_search_teacher_command(callback_query: types.CallbackQuery):
+async def process_callback_search_place_command(callback_query: types.CallbackQuery):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f"Введите названии аудитории "
-                                                               f"(для выхода /{COMMANDS.START}):")
+    menu = kb.InitialKeyboard.getToMenuKeyboard()
+    await bot_object.send_message(callback_query.from_user.id, f"Введите названии аудитории:", reply_markup=menu)
     await StateMachine.PLACE_NAME.set()
+
+
+# Возвращение в меню
+@dispatcher.callback_query_handler(lambda c: c.data == kb.InitialKeyboard.toMenuTxt, state='*')
+async def process_callback_to_menu(callback_query: types.CallbackQuery, state: FSMContext):
+    await process_start_menu(callback_query.from_user.id, state)
+    await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
