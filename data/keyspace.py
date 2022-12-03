@@ -54,20 +54,22 @@ class StateKeyWords:
     ED_FORM = 'ed_form'
     ED_DEGREE = 'ed_degree'
     LEVEL = "level"
-    GROUP = "group"
 
-    GROUP_NAME = "group_name"
 
-    TEACHER = "teacher"
-    TEACHER_NAME = "teacher_name"
+class DatabaseColumnsUser:
+    LAST_GROUP = "last_group_id"
+    LAST_GROUP_NAME = "last_group_name"
+
+    LAST_TEACHER = "last_teacher_id"
+    LAST_TEACHER_NAME = "last_teacher_name"
 
     CODE_AUD = "code_aud"
     CODE_BUILDING = "code_building"
 
-    SAVED_GROUP = "saved_group"
+    SAVED_GROUP = "saved_group_id"
     SAVED_GROUP_NAME = "saved_group_name"
 
-    SAVED_TEACHER = "saved_teacher"
+    SAVED_TEACHER = "saved_teacher_id"
     SAVED_TEACHER_NAME = "saved_teacher_name"
 
 

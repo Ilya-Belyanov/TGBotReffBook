@@ -4,6 +4,7 @@ from aiogram import types
 from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import FSMContext
 
+from core.dbhelper import *
 from core import keybords as kb
 from core.datetimehelper import *
 from core.answercreator import beautifySchedule
@@ -42,9 +43,9 @@ async def process_answer_ed_form(callback_query: types.CallbackQuery, state: FSM
 
 # Поиск расписания по дате и группе в state
 async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
-    data = await state.get_data()
+    last_group = await get_from_user(callback_query.from_user.id, DatabaseColumnsUser.LAST_GROUP)
     await state.update_data(current_date=date)
-    lessons = await ScheduleParserCashManager.getLessons(data[StateKeyWords.GROUP], date)
+    lessons = await ScheduleParserCashManager.getLessons(last_group, date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
@@ -56,9 +57,9 @@ async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSM
 
 # Поиск расписания по дате и по учителю в state
 async def process_schedule_teacher_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
-    data = await state.get_data()
+    last_teacher = await get_from_user(callback_query.from_user.id, DatabaseColumnsUser.LAST_TEACHER)
     await state.update_data(current_date=date)
-    lessons = await ScheduleParserCashManager.getTeacherLessons(data[StateKeyWords.TEACHER], date)
+    lessons = await ScheduleParserCashManager.getTeacherLessons(last_teacher, date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
@@ -70,9 +71,11 @@ async def process_schedule_teacher_dates(callback_query: types.CallbackQuery, st
 
 # Поиск расписания по дате и по аудитории в state
 async def process_schedule_place_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
-    data = await state.get_data()
+    data = await get_all_from_user(callback_query.from_user.id)
     await state.update_data(current_date=date)
-    lessons = await ScheduleParserCashManager.getPlaceLessons(data[StateKeyWords.CODE_BUILDING], data[StateKeyWords.CODE_AUD], date)
+    lessons = await ScheduleParserCashManager.getPlaceLessons(data[DatabaseColumnsUser.CODE_BUILDING],
+                                                              data[DatabaseColumnsUser.CODE_AUD],
+                                                              date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
     await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)

@@ -22,6 +22,7 @@ from bottriggers.corefunctions import process_answer_institute, process_answer_e
 async def process_callback_institutes(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(institute=code)
+
     await bot_object.answer_callback_query(callback_query.id)
     name = await ScheduleParserCashManager.getInstituteNameByID(code)
     await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали "{name}" ')
@@ -34,6 +35,7 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
     code = parseForData(callback_query.data)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU, IdCommandKeyWords.ED_DEGREE)
     await state.update_data(ed_form=code)
+
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}" \n'
                                   + emojize(edb.LAST_QUARTER_MOON) + 'Ступень образования?',
@@ -45,6 +47,7 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
 async def process_callback_education_degree(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(ed_degree=code)
+
     data = await state.get_data()
     await bot_object.answer_callback_query(callback_query.id)
 
@@ -76,6 +79,7 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     code = int(parseForData(callback_query.data))
     await state.update_data(level=code)
     data = await state.get_data()
+
     await bot_object.answer_callback_query(callback_query.id)
     await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали {code} курс')
 

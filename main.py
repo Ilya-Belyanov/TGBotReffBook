@@ -1,6 +1,7 @@
 from aiogram.utils import executor
 
 from bot import dispatcher
+from core.dbhelper import db_connect
 
 # Порядок импортов имеет значение
 
@@ -32,4 +33,6 @@ import bottriggers.callbacklessonstate
 import bottriggers.unknowncommand
 
 if __name__ == "__main__":
-    executor.start_polling(dispatcher, skip_updates=True)
+    executor.start_polling(dispatcher,
+                           skip_updates=True,
+                           on_startup=db_connect)
