@@ -112,12 +112,3 @@ async def get_from_user(id_user: int, column):
     if res is None:
         return None
     return res[0]
-
-
-async def save_lvl_for_user(id_user: int, lvl: int):
-    global database, cursor
-    try:
-        cursor.execute(f"UPDATE users SET lvl = {lvl} WHERE id_user = {id_user}")
-        database.commit()
-    except Exception as e:
-        pass
