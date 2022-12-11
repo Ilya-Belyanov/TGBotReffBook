@@ -2,10 +2,12 @@ version: '3.8'
 
 services:
   poly-schedule-bot:
-    image: 031983/poly-schedule-bot:stable
+    image: 031983/poly-schedule-bot:bd
     secrets:
       - token
+    volumes:
+      - ./db.db:/usr/src/app/db.db
 
 secrets:
   token:
-    external: true
+    file: ../TGR_token/token_test.txt
