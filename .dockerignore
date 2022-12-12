@@ -1,0 +1,7 @@
+.gitignore
+config.py
+db.db
+docker-compose.yaml
+Dockerfile
+README.md
+venv

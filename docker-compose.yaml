@@ -6,7 +6,7 @@ services:
     secrets:
       - token
     volumes:
-      - ./db.db:/usr/src/app/db.db
+      - ./db.db:/app/db.db
 
 secrets:
   token:
