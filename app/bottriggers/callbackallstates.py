@@ -1,19 +1,19 @@
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
 from aiogram.dispatcher import FSMContext
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup
 
-from data.keyspace import *
-from data.states import StateMachine
+from app.data.keyspace import *
+from app.data.states import StateMachine
 
-from core.dbhelper import *
-from core import keybords as kb
-from core.datetimehelper import *
-from core.callbackparser import parseForData
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+from app.core.dbhelper import *
+from app.core import keybords as kb
+from app.core.datetimehelper import *
+from app.core.callbackparser import parseForData
+from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
-from bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
+from app.bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
 
 
 # Поиск расписания для группы

@@ -3,14 +3,14 @@ import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
-from core.callbackparser import parseForData
+from app.core.callbackparser import parseForData
 
-from data.keyspace import IdCommandKeyWords
-from data.states import StateMachine
+from app.data.keyspace import IdCommandKeyWords
+from app.data.states import StateMachine
 
-from bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
+from app.bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
 
 
 # Поиск расписания на другую неделю для группы - обработка кнопки

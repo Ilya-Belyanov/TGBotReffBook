@@ -2,13 +2,13 @@ import itertools
 
 from aiogram import types
 
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from core import keybords as kb
+from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+from app.core import keybords as kb
 
-from data.states import StateMachine
-from data.keyspace import *
+from app.data.states import StateMachine
+from app.data.keyspace import *
 
 
 # Обработка введенного имени преподавателя

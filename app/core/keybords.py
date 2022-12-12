@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from data.keyspace import Separators
-from data.urls import SCHEDULE_URL
+from app.data.keyspace import Separators
+from app.data.urls import SCHEDULE_URL
 
 
 class InitialKeyboard:

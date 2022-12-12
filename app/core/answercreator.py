@@ -3,10 +3,10 @@ import datetime
 import aiogram.utils.markdown as md
 from aiogram.utils.emoji import emojize
 
-import data.emojizedb as edb
-from data.keyspace import LessonsKeyWords
-from data.urls import SCHEDULE_URL
-from core import datetimehelper
+import app.data.emojizedb as edb
+from app.data.keyspace import LessonsKeyWords
+from app.data.urls import SCHEDULE_URL
+from app.core import datetimehelper
 
 
 def beautifySchedule(schedule: list, date: datetime.date):

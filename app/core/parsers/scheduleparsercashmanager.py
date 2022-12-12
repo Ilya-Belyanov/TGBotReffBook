@@ -1,7 +1,7 @@
 import datetime
 
-from core.parsers.scheduleparser import ScheduleParser
-from core.datetimehelper import daysBetweenNow
+from app.core.parsers.scheduleparser import ScheduleParser
+from app.core.datetimehelper import daysBetweenNow
 
 
 class ScheduleParserCashManager:

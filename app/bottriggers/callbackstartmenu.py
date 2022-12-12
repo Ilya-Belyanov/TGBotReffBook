@@ -1,13 +1,13 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
-from core import keybords as kb
+from app.core import keybords as kb
 
-from data.states import StateMachine
+from app.data.states import StateMachine
 
-from bottriggers.corefunctions import process_answer_institute, process_start_menu
+from app.bottriggers.corefunctions import process_answer_institute, process_start_menu
 
 # Функции можно обрабатывать со всех состояний
 

@@ -1,18 +1,18 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
-from core import keybords as kb
-from core.callbackparser import parseForData
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+from app.core import keybords as kb
+from app.core.callbackparser import parseForData
+from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
-from data.messages import *
-from data.keyspace import *
-import data.emojizedb as edb
-from data.states import StateMachine
+from app.data.messages import *
+from app.data.keyspace import *
+import app.data.emojizedb as edb
+from app.data.states import StateMachine
 
-from bottriggers.corefunctions import process_answer_institute, process_answer_ed_form
+from app.bottriggers.corefunctions import process_answer_institute, process_answer_ed_form
 
 # Обработка кнопок с поиском расписания по фильтрам
 

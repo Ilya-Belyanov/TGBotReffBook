@@ -1,10 +1,10 @@
-from bot import dispatcher, bot_object
+from app.bot import dispatcher, bot_object
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from data.messages import *
-from data.states import StateMachine
+from app.data.messages import *
+from app.data.states import StateMachine
 
 
 # Неизвестная команда

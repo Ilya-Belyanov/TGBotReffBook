@@ -4,18 +4,18 @@ from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup
 
-from bot import dispatcher
+from app.bot import dispatcher
 
-from core import keybords as kb
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from core.dbhelper import add_user, get_all_from_user
+from app.core import keybords as kb
+from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+from app.core.dbhelper import add_user, get_all_from_user
 
-from data.keyspace import *
-import data.emojizedb as edb
-from data.commands import COMMANDS
-from data.messages import COMMANDS_MESS
+from app.data.keyspace import *
+import app.data.emojizedb as edb
+from app.data.commands import COMMANDS
+from app.data.messages import COMMANDS_MESS
 
-from bottriggers.corefunctions import process_start_menu
+from app.bottriggers.corefunctions import process_start_menu
 
 
 # Вызов главного меню

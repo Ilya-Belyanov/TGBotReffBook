@@ -5,9 +5,9 @@ from aiohttp import request
 
 from async_lru import alru_cache
 
-from data.keyspace import LessonsKeyWords
-from data.keyspace import Separators
-from data.urls import SCHEDULE_API_URL
+from app.data.keyspace import LessonsKeyWords
+from app.data.keyspace import Separators
+from app.data.urls import SCHEDULE_API_URL
 
 
 class ScheduleParser:

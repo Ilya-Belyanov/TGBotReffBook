@@ -1,36 +1,36 @@
 from aiogram.utils import executor
 
-from bot import dispatcher
-from core.dbhelper import db_connect
+from app.bot import dispatcher
+from app.core.dbhelper import db_connect
 
 # Порядок импортов имеет значение
 
 # Приходим в эти функции из любых состояний (по нажатию на кнопки главного меню)
-import bottriggers.menucommands
+import app.bottriggers.menucommands
 
 # Приходим в эти функции из любых состояний (по нажатию на кнопки главных кнопок)
-import bottriggers.callbackstartmenu
+import app.bottriggers.callbackstartmenu
 
 # Приходим в эти функции из любых состояний (обработка кнопок, например, открыть группу)
-import bottriggers.callbackallstates
+import app.bottriggers.callbackallstates
 
 # Состояние поиска группы по фильтрам
-import bottriggers.callbackfilterstate
+import app.bottriggers.callbackfilterstate
 
 # Состояние поиска группы по имени
-import bottriggers.callbackgroupsearchstate
+import app.bottriggers.callbackgroupsearchstate
 
 # Состояние поиска преподавателя по имени
-import bottriggers.callbackteachersearchstate
+import app.bottriggers.callbackteachersearchstate
 
 # Состояние поиска преподавателя по имени
-import bottriggers.callbackplacesearchstate
+import app.bottriggers.callbackplacesearchstate
 
 '''Состояние просмотра расписания'''
-import bottriggers.callbacklessonstate
+import app.bottriggers.callbacklessonstate
 
 # Не смогли обработать команду (текст или кнопку, так как в другом состоянии)
-import bottriggers.unknowncommand
+import app.bottriggers.unknowncommand
 
 if __name__ == "__main__":
     executor.start_polling(dispatcher,

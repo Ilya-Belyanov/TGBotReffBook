@@ -1,6 +1,6 @@
 import sqlite3 as sq
 
-from data.keyspace import DatabaseColumnsUser
+from app.data.keyspace import DatabaseColumnsUser
 
 global database, cursor
 

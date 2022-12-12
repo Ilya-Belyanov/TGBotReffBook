@@ -1,4 +1,4 @@
-from data.keyspace import Separators
+from app.data.keyspace import Separators
 
 
 def parseForData(data: str, index: int = 1, sep: str = Separators.KEY_DATA):

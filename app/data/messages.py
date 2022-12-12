@@ -1,7 +1,7 @@
 import aiogram.utils.markdown as md
 from aiogram.utils.emoji import emojize
 
-from data.commands import COMMANDS
+from app.data.commands import COMMANDS
 
 
 UNKNOWN_MESS = md.text(emojize('Я не знаю, что с этим делать :astonished:'),

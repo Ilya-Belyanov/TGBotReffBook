@@ -1,18 +1,18 @@
-from bot import bot_object
+from app.bot import bot_object
 
 from aiogram import types
 from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import FSMContext
 
-from core.dbhelper import *
-from core import keybords as kb
-from core.datetimehelper import *
-from core.answercreator import beautifySchedule
-from core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
+from app.core.dbhelper import *
+from app.core import keybords as kb
+from app.core.datetimehelper import *
+from app.core.answercreator import beautifySchedule
+from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
-from data.keyspace import *
-import data.emojizedb as edb
-from data.states import StateMachine
+from app.data.keyspace import *
+import app.data.emojizedb as edb
+from app.data.states import StateMachine
 
 # Многоразовые функции с вопросами
 
