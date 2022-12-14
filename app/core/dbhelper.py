@@ -6,9 +6,9 @@ from app.core.googleanalytics import analytic_wrapper_with_id, KeyParams
 global database, cursor
 
 
-async def db_connect(_):
+async def db_connect(name):
     global database, cursor
-    database = sq.connect("db.db")
+    database = sq.connect(name)
     cursor = database.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS users(id_user INT UNIQUE,"
                    "saved_group_id INT DEFAULT NULL, saved_group_name TEXT DEFAULT NULL,"

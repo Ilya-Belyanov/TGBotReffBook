@@ -2,6 +2,7 @@ from aiogram.utils import executor
 
 from app.bot import dispatcher
 from app.core.dbhelper import db_connect
+from app.core.googleanalytics import send_analytics
 
 # Порядок импортов имеет значение
 
@@ -32,7 +33,13 @@ import app.bottriggers.callbacklessonstate
 # Не смогли обработать команду (текст или кнопку, так как в другом состоянии)
 import app.bottriggers.unknowncommand
 
+
+async def on_start_bot(_):
+    await db_connect("db.db")
+    await send_analytics(0, "START_BOT")
+
+
 if __name__ == "__main__":
     executor.start_polling(dispatcher,
                            skip_updates=True,
-                           on_startup=db_connect)
+                           on_startup=on_start_bot)
