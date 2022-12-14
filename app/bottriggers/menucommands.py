@@ -9,6 +9,7 @@ from app.bot import dispatcher
 from app.core import keybords as kb
 from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 from app.core.dbhelper import add_user, get_all_from_user
+from app.core.googleanalytics import analytic_wrapper_with_message
 
 from app.data.keyspace import *
 import app.data.emojizedb as edb
@@ -20,6 +21,7 @@ from app.bottriggers.corefunctions import process_start_menu
 
 # Вызов главного меню
 @dispatcher.message_handler(commands=[COMMANDS.START], state='*')
+@analytic_wrapper_with_message(action=COMMANDS.START)
 async def process_start_command(message: types.Message, state: FSMContext):
     await process_start_menu(message.from_user.id, state)
     await add_user(message.from_user.id)
@@ -27,6 +29,7 @@ async def process_start_command(message: types.Message, state: FSMContext):
 
 # Ответ на запрос /help
 @dispatcher.message_handler(commands=[COMMANDS.HELP], state='*')
+@analytic_wrapper_with_message(action=COMMANDS.HELP)
 async def process_help_command(message: types.Message):
     await message.reply(COMMANDS_MESS, parse_mode=types.ParseMode.MARKDOWN)
     await add_user(message.from_user.id)
@@ -34,6 +37,7 @@ async def process_help_command(message: types.Message):
 
 # Ответ на запрос /parameters
 @dispatcher.message_handler(commands=[COMMANDS.PARAMETERS], state='*')
+@analytic_wrapper_with_message(action=COMMANDS.PARAMETERS)
 async def process_param_command(message: types.Message, state: FSMContext):
     answer = md.bold("Последний раз вы ввели следующие параметры") + ":"
     data = await get_all_from_user(message.from_user.id)
@@ -55,8 +59,9 @@ async def process_param_command(message: types.Message, state: FSMContext):
     lvl = state_data.get(StateKeyWords.LEVEL)
     answer += md.bold("Курс") + " - " + (str(lvl) if lvl is not None else emojize(edb.NO_ENTRY_SIGN))
     answer += "\n"
+    last_group = data[DatabaseColumnsUser.LAST_GROUP_NAME]
     answer += md.bold("Группа") + " - " + (
-        data[DatabaseColumnsUser.LAST_GROUP_NAME] if DatabaseColumnsUser.LAST_GROUP_NAME in data else emojize(
+        last_group if last_group is not None else emojize(
             edb.NO_ENTRY_SIGN))
     answer += "\n"
     saved_group = data[DatabaseColumnsUser.SAVED_GROUP_NAME]
@@ -68,6 +73,7 @@ async def process_param_command(message: types.Message, state: FSMContext):
 
 # Ответ на запрос /saved
 @dispatcher.message_handler(commands=[COMMANDS.SAVED], state='*')
+@analytic_wrapper_with_message(action=COMMANDS.SAVED)
 async def process_help_saved(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(row_width=1)
     is_smth = False

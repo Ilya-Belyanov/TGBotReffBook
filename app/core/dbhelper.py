@@ -1,6 +1,7 @@
 import sqlite3 as sq
 
 from app.data.keyspace import DatabaseColumnsUser
+from app.core.googleanalytics import analytic_wrapper_with_id, KeyParams
 
 global database, cursor
 
@@ -18,13 +19,15 @@ async def db_connect(_):
     database.commit()
 
 
-async def add_user(id_user: int):
+@analytic_wrapper_with_id("New_user_id", True)
+async def add_user(id_user: int) -> bool:
     global database, cursor
     res = cursor.execute(f"SELECT id_user FROM users WHERE id_user = {id_user}").fetchone()
     if res is not None:
-        return
+        return False
     cursor.execute(f"INSERT INTO users (id_user) VALUES ({id_user})")
     database.commit()
+    return True
 
 
 # SAVE
