@@ -15,7 +15,11 @@ async def db_connect(name):
                    "saved_teacher_id INT DEFAULT NULL, saved_teacher_name TEXT DEFAULT NULL,"
                    "last_group_id INT DEFAULT NULL, last_group_name TEXT DEFAULT NULL,"
                    "last_teacher_id INT DEFAULT NULL, last_teacher_name TEXT DEFAULT NULL,"
-                   "code_aud INT DEFAULT NULL, code_building INT DEFAULT NULL)")
+                   "code_aud INT DEFAULT NULL, code_building INT DEFAULT NULL,"
+                   "active NUMERIC DEFAULT 1)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS admins(id_user INT UNIQUE)")
+
     database.commit()
 
 
@@ -28,6 +32,24 @@ async def add_user(id_user: int) -> bool:
     cursor.execute(f"INSERT INTO users (id_user) VALUES ({id_user})")
     database.commit()
     return True
+
+
+async def is_admin(id_user: int) -> bool:
+    global database, cursor
+    res = cursor.execute(f"SELECT id_user FROM admins WHERE id_user = {id_user}").fetchone()
+    return res is not None
+
+
+async def user_count() -> int:
+    global database, cursor
+    res = cursor.execute(f"SELECT COUNT(id_user) FROM users").fetchone()
+    return res[0]
+
+
+async def all_users() -> list:
+    global database, cursor
+    res = cursor.execute(f"SELECT id_user FROM users").fetchall()
+    return res
 
 
 # SAVE
@@ -87,7 +109,6 @@ async def save_int_for_user(id_user: int, column: str, value: int):
         database.commit()
     except Exception as e:
         pass
-
 
 # GET
 async def get_all_from_user(id_user: int) -> dict:

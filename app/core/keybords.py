@@ -11,6 +11,11 @@ class InitialKeyboard:
     searchPlaceTxt = 'search_place'
     toMenuTxt = 'menu'
 
+    """Админские кнопки"""
+    clearCache = "clear_cache"
+    userCountBtn = "user_count"
+    writeToUsers = "write_to_users"
+
     @staticmethod
     def getKeyboard():
         getScheduleBtn = InlineKeyboardButton('Найти расписание', callback_data=InitialKeyboard.getScheduleTxt)
@@ -21,6 +26,15 @@ class InitialKeyboard:
                                               callback_data=InitialKeyboard.searchPlaceTxt)
         return InlineKeyboardMarkup(row_width=1).row(getScheduleBtn).row(searchGroupBtn).row(searchTeacherBtn).row(
             searchPlaceBtn)
+
+    @staticmethod
+    def getAdminKeyboard():
+        getCacheBtn = InlineKeyboardButton('Очистить кэш', callback_data=InitialKeyboard.clearCache)
+        getUserCountBtn = InlineKeyboardButton('Количество пользователей в бд',
+                                               callback_data=InitialKeyboard.userCountBtn)
+        writeToUsers = InlineKeyboardButton('Написать всем пользователям',
+                                            callback_data=InitialKeyboard.writeToUsers)
+        return InlineKeyboardMarkup(row_width=1).row(getCacheBtn).row(getUserCountBtn).row(writeToUsers)
 
     @staticmethod
     def getToMenuKeyboard():
@@ -39,7 +53,7 @@ class ModifyKeyboard:
 
     @staticmethod
     def addCacheTeacherButton(markup: InlineKeyboardMarkup, main_data: int, teacher_name: str, key_word: str,
-                            text: str = "Преподаватель"):
+                              text: str = "Преподаватель"):
         getCachedScheduleBtn = InlineKeyboardButton(text + f' {teacher_name}',
                                                     callback_data=key_word + Separators.KEY_DATA + str(main_data))
         markup.add(getCachedScheduleBtn)

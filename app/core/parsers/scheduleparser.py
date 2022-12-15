@@ -48,7 +48,6 @@ class ScheduleParser:
         return {i: groups[i] for i in sorted(groups)}
 
     @staticmethod
-    @alru_cache
     async def getGroupsByText(group: str) -> dict:
         """API запрос для получения подходящих групп по тексту"""
         url = SCHEDULE_API_URL + f"/search/groups?q={group}"
@@ -63,11 +62,6 @@ class ScheduleParser:
             return groups_dict
 
     @staticmethod
-    async def getTeacherByTextSlice(teacher: str, start: int, end: int) -> dict:
-        groups = await ScheduleParser.getTeacherByText(teacher)
-        return dict(itertools.islice(groups.items(), start, end))
-
-    @staticmethod
     @alru_cache
     async def getTeacherNameByID(id: int) -> str:
         """API запрос для получения подходящих преподавателей по тексту"""
@@ -79,7 +73,6 @@ class ScheduleParser:
             return answer["full_name"]
 
     @staticmethod
-    @alru_cache
     async def getTeacherByText(teacher: str) -> dict:
         """API запрос для получения подходящих преподавателей по тексту"""
         url = SCHEDULE_API_URL + f"/search/teachers?q={teacher}"
@@ -94,7 +87,6 @@ class ScheduleParser:
             return {i[0]: i[1] for i in sorted(teachers_dict.items(), key=lambda t: t[1])}
 
     @staticmethod
-    @alru_cache
     async def getPlacesByText(place: str) -> dict:
         """API запрос для получения подходящих групп по тексту"""
         url = SCHEDULE_API_URL + f"/search/rooms?q={place}"
