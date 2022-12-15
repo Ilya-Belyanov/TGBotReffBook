@@ -72,6 +72,8 @@ class DatabaseColumnsUser:
     SAVED_TEACHER = "saved_teacher_id"
     SAVED_TEACHER_NAME = "saved_teacher_name"
 
+    ACTIVE = "active"
+
 
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}
 EDUCATION_DEGREE_RU = {EdDegree.BACHELOR: "Бакалавр", EdDegree.MAGISTRACY: "Магистр",

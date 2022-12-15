@@ -12,19 +12,12 @@ class ScheduleParserCashManager:
     GROUPS_LAST_DT_CASH = datetime.datetime.now().date()
     GROUPS_CASH_PERIOD = 30
 
-    GROUPS_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
-    GROUPS_SEARCH_CASH_PERIOD = 2
-
-    TEACHER_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
-    TEACHER_SEARCH_CASH_PERIOD = 1
-
-    PLACES_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
-    PLACES_SEARCH_CASH_PERIOD = 1
-
     LESSONS_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_CASH_PERIOD = 1
+
     LESSONS_TEACHER_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_TEACHER_CASH_PERIOD = 1
+
     LESSONS_PLACE_LAST_DT_CASH = datetime.datetime.now().date()
     LESSONS_PLACE_CASH_PERIOD = 1
 
@@ -33,6 +26,7 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getInstitutes(cls):
+        """С кэшем"""
         if daysBetweenNow(cls.INSTITUTE_LAST_DT_CASH) > cls.INSTITUTE_CASH_PERIOD:
             ScheduleParser.getInstitutes.cache_clear()
             cls.INSTITUTE_LAST_DT_CASH = datetime.datetime.now().date()
@@ -40,6 +34,7 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getCourses(cls, faculty: int, ed_form: str, degree: int):
+        """С кэшем"""
         if daysBetweenNow(cls.COURSE_LAST_DT_CASH) > cls.COURSE_CASH_PERIOD:
             ScheduleParser.getGroups.cache_clear()
             ScheduleParser.getCourses.cache_clear()
@@ -48,6 +43,7 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getGroupsByParameters(cls, faculty: int, ed_form: str, degree: int, level: int):
+        """С кэшем"""
         if daysBetweenNow(cls.GROUPS_LAST_DT_CASH) > cls.GROUPS_CASH_PERIOD:
             ScheduleParser.getGroups.cache_clear()
             ScheduleParser.getGroupsByParameters.cache_clear()
@@ -56,34 +52,22 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getGroupsByText(cls, group: str):
-        if daysBetweenNow(cls.GROUPS_SEARCH_LAST_DT_CASH) > cls.GROUPS_SEARCH_CASH_PERIOD:
-            ScheduleParser.getGroupsByText.cache_clear()
-            cls.GROUPS_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+        """Без кэша"""
         return await ScheduleParser.getGroupsByText(group)
 
     @classmethod
-    async def getTeacherByTextSlice(cls, group: str, start: int, end: int):
-        if daysBetweenNow(cls.TEACHER_SEARCH_LAST_DT_CASH) > cls.TEACHER_SEARCH_CASH_PERIOD:
-            ScheduleParser.getTeacherByText.cache_clear()
-            cls.TEACHER_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
-        return await ScheduleParser.getTeacherByTextSlice(group, start, end)
-
-    @classmethod
     async def getTeacherByText(cls, group: str):
-        if daysBetweenNow(cls.TEACHER_SEARCH_LAST_DT_CASH) > cls.TEACHER_SEARCH_CASH_PERIOD:
-            ScheduleParser.getTeacherByText.cache_clear()
-            cls.TEACHER_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+        """Без кэша"""
         return await ScheduleParser.getTeacherByText(group)
 
     @classmethod
     async def getPlacesByText(cls, place: str):
-        if daysBetweenNow(cls.PLACES_SEARCH_LAST_DT_CASH) > cls.PLACES_SEARCH_CASH_PERIOD:
-            ScheduleParser.getPlacesByText.cache_clear()
-            cls.PLACES_SEARCH_LAST_DT_CASH = datetime.datetime.now().date()
+        """Без кэша"""
         return await ScheduleParser.getPlacesByText(place)
 
     @classmethod
     async def getLessons(cls, group: int, date: datetime.date):
+        """С кэшем"""
         if daysBetweenNow(cls.LESSONS_LAST_DT_CASH) > cls.LESSONS_CASH_PERIOD:
             ScheduleParser.getLessons.cache_clear()
             cls.LESSONS_LAST_DT_CASH = datetime.datetime.now().date()
@@ -91,6 +75,7 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getTeacherLessons(cls, teacher: int, date: datetime.date):
+        """С кэшем"""
         if daysBetweenNow(cls.LESSONS_TEACHER_LAST_DT_CASH) > cls.LESSONS_TEACHER_CASH_PERIOD:
             ScheduleParser.getTeacherLessons.cache_clear()
             cls.LESSONS_TEACHER_LAST_DT_CASH = datetime.datetime.now().date()
@@ -98,6 +83,7 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getPlaceLessons(cls, building: int, place: int, date: datetime.date):
+        """С кэшем"""
         if daysBetweenNow(cls.LESSONS_PLACE_LAST_DT_CASH) > cls.LESSONS_PLACE_CASH_PERIOD:
             ScheduleParser.getPlaceLessons.cache_clear()
             cls.LESSONS_PLACE_LAST_DT_CASH = datetime.datetime.now().date()
@@ -110,8 +96,19 @@ class ScheduleParserCashManager:
 
     @classmethod
     async def getTeacherNameByID(cls, id: int):
+        """С кэшем"""
         if daysBetweenNow(cls.TEACHER_BY_ID_LAST_DT_CASH) > cls.TEACHER_BY_ID_CASH_PERIOD:
             ScheduleParser.getTeacherNameByID.cache_clear()
             cls.TEACHER_BY_ID_LAST_DT_CASH = datetime.datetime.now().date()
         return await ScheduleParser.getTeacherNameByID(id)
 
+    @classmethod
+    async def clearCache(cls):
+        ScheduleParser.getInstitutes.cache_clear()
+        ScheduleParser.getGroups.cache_clear()
+        ScheduleParser.getCourses.cache_clear()
+        ScheduleParser.getGroupsByParameters.cache_clear()
+        ScheduleParser.getLessons.cache_clear()
+        ScheduleParser.getTeacherLessons.cache_clear()
+        ScheduleParser.getPlaceLessons.cache_clear()
+        ScheduleParser.getTeacherNameByID.cache_clear()

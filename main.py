@@ -12,6 +12,9 @@ import app.bottriggers.menucommands
 # Приходим в эти функции из любых состояний (по нажатию на кнопки главных кнопок)
 import app.bottriggers.callbackstartmenu
 
+"""Обработка нажатий из панели админа"""
+import app.bottriggers.callbackadminmenu
+
 # Приходим в эти функции из любых состояний (обработка кнопок, например, открыть группу)
 import app.bottriggers.callbackallstates
 
@@ -26,6 +29,9 @@ import app.bottriggers.callbackteachersearchstate
 
 # Состояние поиска преподавателя по имени
 import app.bottriggers.callbackplacesearchstate
+
+"""Отослать сообщение всем людям"""
+import app.bottriggers.callbackwritetoall
 
 '''Состояние просмотра расписания'''
 import app.bottriggers.callbacklessonstate

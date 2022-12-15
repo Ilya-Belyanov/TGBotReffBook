@@ -8,12 +8,13 @@ from app.bot import dispatcher
 
 from app.core import keybords as kb
 from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from app.core.dbhelper import add_user, get_all_from_user
+from app.core.dbhelper import add_user, get_all_from_user, is_admin
 from app.core.googleanalytics import analytic_wrapper_with_message
 
 from app.data.keyspace import *
 import app.data.emojizedb as edb
 from app.data.commands import COMMANDS
+from app.data.states import StateMachine
 from app.data.messages import COMMANDS_MESS
 
 from app.bottriggers.corefunctions import process_start_menu
@@ -109,3 +110,16 @@ async def process_help_saved(message: types.Message, state: FSMContext):
     else:
         await message.answer("Никаких сохранений нет!")
     await add_user(message.from_user.id)
+
+
+# Ответ на запрос /admin
+@dispatcher.message_handler(commands=[COMMANDS.ADMIN], state='*')
+@analytic_wrapper_with_message(action=COMMANDS.ADMIN)
+async def process_admin_command(message: types.Message):
+    is_available = await is_admin(message.from_user.id)
+    if not is_available:
+        return
+    await message.reply("Сударь, добро пожаловать", parse_mode=types.ParseMode.MARKDOWN,
+                        reply_markup=kb.InitialKeyboard.getAdminKeyboard())
+    await add_user(message.from_user.id)
+    await StateMachine.MAIN_STATE.set()

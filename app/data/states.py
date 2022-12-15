@@ -25,3 +25,7 @@ class StateMachine(StatesGroup):
 
     # Состояние просмотра расписания аудитории
     PLACE_LESSON_STATE = State()
+
+    """Админские"""
+    # Состояние просмотра расписания аудитории
+    WRITE_TO_ALL = State()
