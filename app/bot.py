@@ -6,7 +6,7 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 import config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, filename='app.log', filemode='w')
 
 bot_object = Bot(token=config.TOKEN)
 dispatcher = Dispatcher(bot_object, storage=MemoryStorage())
