@@ -43,3 +43,23 @@ def weekday_str(date: datetime.date):
 
 def month_str(date: datetime.date):
     return MONTHS[date.month]
+
+
+def strToDate(string: str):
+    today = datetime.date.today()
+    date_obj = datetime.datetime.today()
+    try:
+        if len(string) == 2:
+            date_obj = datetime.datetime.strptime(string, '%d')
+            date_obj = date_obj.replace(month=today.month, year=today.year)
+        elif len(string) == 4:
+            date_obj = datetime.datetime.strptime(string, '%d%m')
+            date_obj = date_obj.replace(year=today.year)
+        elif len(string) == 6:
+            date_obj = datetime.datetime.strptime(string, '%d%m%y')
+        else:
+            return today, False
+    except Exception as e:
+        print(e)
+        return today, False
+    return date_obj.date(), True

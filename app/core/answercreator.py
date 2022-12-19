@@ -12,7 +12,7 @@ from app.core import datetimehelper
 def beautifySchedule(schedule: list, date: datetime.date):
     result_list = []
     even = "чет" if datetimehelper.isEvenWeek(date) else "нечет"
-    result_str = md.bold(f"Неделя: {datetimehelper.weekRangeStr(date)} ({even})\n")
+    result_str = md.bold(f"Неделя: {datetimehelper.weekRangeStr(date)} ({even}) {date.strftime('%Y')} год\n")
     result_list.append(result_str)
     result_str = ""
     for day in schedule:

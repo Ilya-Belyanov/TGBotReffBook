@@ -42,44 +42,44 @@ async def process_answer_ed_form(callback_query: types.CallbackQuery, state: FSM
 
 
 # Поиск расписания по дате и группе в state
-async def process_schedule_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
+async def process_schedule_dates(callback_query, state: FSMContext, date: datetime.date):
     last_group = await get_from_user(callback_query.from_user.id, DatabaseColumnsUser.LAST_GROUP)
     await state.update_data(current_date=date)
     lessons = await ScheduleParserCashManager.getLessons(last_group, date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
-    await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
     for answer in answers:
         await bot_object.send_message(callback_query.from_user.id, answer, parse_mode=types.ParseMode.MARKDOWN_V2)
     await bot_object.send_message(callback_query.from_user.id, emojize(edb.CALENDAR) + "Выбрать другую неделю",
                                   reply_markup=keyboard)
+    await bot_object.send_message(callback_query.from_user.id, "Ввести дату недели: ")
 
 
 # Поиск расписания по дате и по учителю в state
-async def process_schedule_teacher_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
+async def process_schedule_teacher_dates(callback_query, state: FSMContext, date: datetime.date):
     last_teacher = await get_from_user(callback_query.from_user.id, DatabaseColumnsUser.LAST_TEACHER)
     await state.update_data(current_date=date)
     lessons = await ScheduleParserCashManager.getTeacherLessons(last_teacher, date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
-    await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
     for answer in answers:
         await bot_object.send_message(callback_query.from_user.id, answer, parse_mode=types.ParseMode.MARKDOWN_V2)
     await bot_object.send_message(callback_query.from_user.id, emojize(edb.CALENDAR) + "Выбрать другую неделю",
                                   reply_markup=keyboard)
+    await bot_object.send_message(callback_query.from_user.id, "Ввести дату недели: ")
 
 
 # Поиск расписания по дате и по аудитории в state
-async def process_schedule_place_dates(callback_query: types.CallbackQuery, state: FSMContext, date: datetime.date):
+async def process_schedule_place_dates(callback_query, state: FSMContext, date: datetime.date):
     data = await get_all_from_user(callback_query.from_user.id)
     await state.update_data(current_date=date)
     lessons = await ScheduleParserCashManager.getPlaceLessons(data[DatabaseColumnsUser.CODE_BUILDING],
                                                               data[DatabaseColumnsUser.CODE_AUD],
                                                               date)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(createPrevNextWeeks(date), IdCommandKeyWords.DATES, 3)
-    await bot_object.answer_callback_query(callback_query.id)
     answers = beautifySchedule(lessons, date)
     for answer in answers:
         await bot_object.send_message(callback_query.from_user.id, answer, parse_mode=types.ParseMode.MARKDOWN_V2)
     await bot_object.send_message(callback_query.from_user.id, emojize(edb.CALENDAR) + "Выбрать другую неделю",
                                   reply_markup=keyboard)
+    await bot_object.send_message(callback_query.from_user.id, "Ввести дату недели: ")
