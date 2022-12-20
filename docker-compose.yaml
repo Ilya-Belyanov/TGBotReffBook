@@ -2,12 +2,19 @@ version: '3.8'
 
 services:
   poly-schedule-bot:
-    image: 031983/poly-schedule-bot:db
+    image: 031983/poly-schedule-bot:v2
     secrets:
       - token
+      - measurement_id
+      - api_secret
     volumes:
       - ./db.db:/app/db.db
+      - ./app.log:/app/app.log
 
 secrets:
   token:
     file: ../TGR_token/token_test.txt
+  measurement_id:
+    file: ../TGR_token/measurement_id.txt
+  api_secret:
+    file: ../TGR_token/api_secret.txt

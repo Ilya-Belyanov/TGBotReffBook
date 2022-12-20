@@ -1,10 +1,12 @@
 from aiohttp import ClientSession
 
-import config
 import functools
 
-MEASUREMENT_ID = config.MEASUREMENT_ID
-API_SECRET = config.API_SECRET
+try:
+    MEASUREMENT_ID = open('/run/secrets/measurement_id', 'r').readline()
+    API_SECRET = open('/run/secrets/api_secret', 'r').readline()
+except IOError:
+    exit(-1)
 
 
 class KeyParams:
