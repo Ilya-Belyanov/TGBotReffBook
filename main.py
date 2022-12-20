@@ -36,6 +36,8 @@ import app.bottriggers.callbackwritetoall
 '''Состояние просмотра расписания'''
 import app.bottriggers.callbacklessonstate
 
+import app.bottriggers.callbackdatetimelesson
+
 # Не смогли обработать команду (текст или кнопку, так как в другом состоянии)
 import app.bottriggers.unknowncommand
 

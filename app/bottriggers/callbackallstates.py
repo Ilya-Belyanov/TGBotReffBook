@@ -13,7 +13,8 @@ from app.core.datetimehelper import *
 from app.core.callbackparser import parseForData
 from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
 
-from app.bottriggers.corefunctions import process_schedule_dates, process_schedule_teacher_dates, process_schedule_place_dates
+from app.bottriggers.corefunctions import process_schedule_dates,\
+    process_schedule_teacher_dates, process_schedule_place_dates
 
 
 # Поиск расписания для группы
@@ -37,7 +38,7 @@ async def process_callback_schedule_group(callback_query: types.CallbackQuery, s
 
         await bot_object.send_message(callback_query.from_user.id, "Вы можете сохранить группу, чтобы не "
                                                                    "вводить ее каждый раз", reply_markup=keyboard)
-
+    await bot_object.answer_callback_query(callback_query.id)
     await StateMachine.LESSON_STATE.set()
 
 
@@ -74,6 +75,7 @@ async def process_callback_schedule_teacher(callback_query: types.CallbackQuery,
         await bot_object.send_message(callback_query.from_user.id, "Вы можете сохранить преподавателя, чтобы не "
                                                                    "вводить его каждый раз", reply_markup=keyboard)
 
+    await bot_object.answer_callback_query(callback_query.id)
     await StateMachine.TEACHER_LESSON_STATE.set()
 
 
@@ -99,5 +101,6 @@ async def process_callback_schedule_place(callback_query: types.CallbackQuery, s
     await save_int_for_user(callback_query.from_user.id, DatabaseColumnsUser.CODE_BUILDING, code_building)
     date = startDayOfWeek(datetime.date.today())
     await process_schedule_place_dates(callback_query, state, date)
+    await bot_object.answer_callback_query(callback_query.id)
     await StateMachine.PLACE_LESSON_STATE.set()
 
