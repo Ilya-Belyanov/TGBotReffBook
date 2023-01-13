@@ -63,3 +63,4 @@ async def process_callback_search_place_command(callback_query: types.CallbackQu
 async def process_callback_to_menu(callback_query: types.CallbackQuery, state: FSMContext):
     await process_start_menu(callback_query.from_user.id, state)
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+    await bot_object.answer_callback_query(callback_query.id)
