@@ -18,7 +18,7 @@ from app.bottriggers.corefunctions import process_answer_institute, process_answ
 
 
 # Выбор формы обучения после института
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.INSTITUTE in c.data, state=StateMachine.FILTER_GROUP)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.INSTITUTE == parseForData(c.data, 0), state=StateMachine.FILTER_GROUP)
 async def process_callback_institutes(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(institute=code)
@@ -30,7 +30,7 @@ async def process_callback_institutes(callback_query: types.CallbackQuery, state
 
 
 # Выбор степени обучения после формы обучения
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_FORM in c.data, state=StateMachine.FILTER_GROUP)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_FORM == parseForData(c.data, 0), state=StateMachine.FILTER_GROUP)
 async def process_callback_education_form(callback_query: types.CallbackQuery, state: FSMContext):
     code = parseForData(callback_query.data)
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(EDUCATION_DEGREE_RU, IdCommandKeyWords.ED_DEGREE)
@@ -43,7 +43,7 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
 
 
 # Выбор курса после выбора степени образования
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_DEGREE in c.data, state=StateMachine.FILTER_GROUP)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.ED_DEGREE == parseForData(c.data, 0), state=StateMachine.FILTER_GROUP)
 async def process_callback_education_degree(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(ed_degree=code)
@@ -74,7 +74,7 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
 
 
 # Поиск групп после выбора курса
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.LEVEL in c.data, state=StateMachine.FILTER_GROUP)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.LEVEL == parseForData(c.data, 0), state=StateMachine.FILTER_GROUP)
 async def process_callback_level(callback_query: types.CallbackQuery, state: FSMContext):
     code = int(parseForData(callback_query.data))
     await state.update_data(level=code)

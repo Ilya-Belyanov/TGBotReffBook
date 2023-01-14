@@ -8,7 +8,7 @@ from app.bot import dispatcher
 
 from app.core import keybords as kb
 from app.core.parsers.scheduleparsercashmanager import ScheduleParserCashManager
-from app.core.dbhelper import add_user, get_all_from_user, is_admin
+from app.core.dbhelper import add_user, get_all_from_user, is_admin, get_saved_groups, get_saved_teachers
 from app.core.googleanalytics import analytic_wrapper_with_message
 
 from app.data.keyspace import *
@@ -65,9 +65,9 @@ async def process_param_command(message: types.Message, state: FSMContext):
         last_group if last_group is not None else emojize(
             edb.NO_ENTRY_SIGN))
     answer += "\n"
-    saved_group = data[DatabaseColumnsUser.SAVED_GROUP_NAME]
-    answer += md.bold("Сохраненная Группа") + " - " + (
-        saved_group if saved_group is not None else emojize(edb.NO_ENTRY_SIGN))
+    last_teacher = data[DatabaseColumnsUser.LAST_TEACHER]
+    answer += md.bold("Преподаватель") + " - " + (
+        last_teacher if last_teacher is not None else emojize(edb.NO_ENTRY_SIGN))
     await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
     await add_user(message.from_user.id)
 
@@ -75,31 +75,32 @@ async def process_param_command(message: types.Message, state: FSMContext):
 # Ответ на запрос /saved
 @dispatcher.message_handler(commands=[COMMANDS.SAVED], state='*')
 @analytic_wrapper_with_message(action=COMMANDS.SAVED)
-async def process_help_saved(message: types.Message, state: FSMContext):
+async def process_saved_command(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(row_width=1)
     is_smth = False
     data = await get_all_from_user(message.from_user.id)
-    if data[DatabaseColumnsUser.SAVED_GROUP] is not None:
-        is_smth = True
-        kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[DatabaseColumnsUser.SAVED_GROUP],
-                                              data[DatabaseColumnsUser.SAVED_GROUP_NAME],
-                                              IdCommandKeyWords.GROUP, text="Группа:")
 
-    if data[DatabaseColumnsUser.SAVED_TEACHER] is not None:
+    saved_groups = await get_saved_groups(message.from_user.id)
+    for group in saved_groups:
         is_smth = True
-        kb.ModifyKeyboard.addCacheTeacherButton(keyboard, data[DatabaseColumnsUser.SAVED_TEACHER],
-                                                data[DatabaseColumnsUser.SAVED_TEACHER_NAME],
-                                                IdCommandKeyWords.TEACHER, text="Преподаватель:")
+        kb.ModifyKeyboard.addCacheGroupButton(keyboard, group[0],
+                                              group[1], IdCommandKeyWords.GROUP, text="Группа:")
+
+    saved_teachers = await get_saved_teachers(message.from_user.id)
+    for teacher in saved_teachers:
+        is_smth = True
+        kb.ModifyKeyboard.addCacheTeacherButton(keyboard, teacher[0],
+                                                teacher[1], IdCommandKeyWords.TEACHER, text="Преподаватель:")
 
     if DatabaseColumnsUser.LAST_GROUP in data \
-            and data[DatabaseColumnsUser.LAST_GROUP] != data.get(DatabaseColumnsUser.SAVED_GROUP):
+            and (data[DatabaseColumnsUser.LAST_GROUP], data[DatabaseColumnsUser.LAST_GROUP_NAME]) not in saved_groups:
         is_smth = True
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[DatabaseColumnsUser.LAST_GROUP],
                                               data[DatabaseColumnsUser.LAST_GROUP_NAME],
                                               IdCommandKeyWords.GROUP, text="Последняя группа:")
 
-    if DatabaseColumnsUser.LAST_TEACHER in data\
-            and data[DatabaseColumnsUser.LAST_TEACHER] != data.get(DatabaseColumnsUser.SAVED_TEACHER):
+    if DatabaseColumnsUser.LAST_TEACHER in data \
+            and (data[DatabaseColumnsUser.LAST_TEACHER], data[DatabaseColumnsUser.LAST_TEACHER_NAME]) not in saved_teachers:
         is_smth = True
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[DatabaseColumnsUser.LAST_TEACHER],
                                               data[DatabaseColumnsUser.LAST_TEACHER_NAME],

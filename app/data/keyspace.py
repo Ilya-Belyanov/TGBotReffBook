@@ -41,6 +41,10 @@ class IdCommandKeyWords:
 
     SAVE_GROUP = "save"
     SAVE_TEACHER = "sv_thr"
+
+    REMOVE_GROUP = "remove_group"
+    REMOVE_TEACHER = "remove_teacher"
+
     DATES = "dates"
 
 
@@ -66,13 +70,19 @@ class DatabaseColumnsUser:
     CODE_AUD = "code_aud"
     CODE_BUILDING = "code_building"
 
+    ACTIVE = "active"
+
+
+class DatabaseColumnUserGroups:
+    ID_USER = "id_user"
     SAVED_GROUP = "saved_group_id"
     SAVED_GROUP_NAME = "saved_group_name"
 
+
+class DatabaseColumnUserTeachers:
+    ID_USER = "id_user"
     SAVED_TEACHER = "saved_teacher_id"
     SAVED_TEACHER_NAME = "saved_teacher_name"
-
-    ACTIVE = "active"
 
 
 EDUCATION_FORMS_RU = {EdForm.COMMON: "Очная", EdForm.EVENING: "Очно-заочная", EdForm.DISTANT: "Заочная"}

@@ -10,17 +10,6 @@ async def db_connect(name):
     global database, cursor
     database = sq.connect(name)
     cursor = database.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(id_user INT UNIQUE,"
-                   "saved_group_id INT DEFAULT NULL, saved_group_name TEXT DEFAULT NULL,"
-                   "saved_teacher_id INT DEFAULT NULL, saved_teacher_name TEXT DEFAULT NULL,"
-                   "last_group_id INT DEFAULT NULL, last_group_name TEXT DEFAULT NULL,"
-                   "last_teacher_id INT DEFAULT NULL, last_teacher_name TEXT DEFAULT NULL,"
-                   "code_aud INT DEFAULT NULL, code_building INT DEFAULT NULL,"
-                   "active NUMERIC DEFAULT 1)")
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS admins(id_user INT UNIQUE)")
-
-    database.commit()
 
 
 @analytic_wrapper_with_id("New_user_id", True)
@@ -56,8 +45,11 @@ async def all_users() -> list:
 async def save_group_for_user(id_user: int, group_id: int, group_name: str):
     global database, cursor
     try:
-        cursor.execute(f"UPDATE users SET saved_group_id = {group_id}, saved_group_name = '{group_name}'"
-                       f" WHERE id_user = {id_user}")
+        can_save = await can_save_group(id_user)
+        if not can_save:
+            return
+        cursor.execute(f"INSERT INTO users_groups (id_user, saved_group_id, saved_group_name) "
+                       f"VALUES ({id_user}, {group_id}, '{group_name}')")
         database.commit()
     except Exception as e:
         pass
@@ -76,8 +68,11 @@ async def update_last_group_for_user(id_user: int, group_id: int, group_name: st
 async def save_teacher_for_user(id_user: int, teacher_id: int, teacher_name: str):
     global database, cursor
     try:
-        cursor.execute(f"UPDATE users SET saved_teacher_id = {teacher_id}, saved_teacher_name = '{teacher_name}'"
-                       f" WHERE id_user = {id_user}")
+        can_save = await can_save_teacher(id_user)
+        if not can_save:
+            return
+        cursor.execute(f"INSERT INTO users_teachers (id_user, saved_teacher_id, saved_teacher_name) "
+                       f"VALUES ({id_user}, {teacher_id}, '{teacher_name}')")
         database.commit()
     except Exception as e:
         pass
@@ -110,29 +105,98 @@ async def save_int_for_user(id_user: int, column: str, value: int):
     except Exception as e:
         pass
 
+
+# REMOVE
+
+async def remove_group_for_user(id_user: int, group_id: int, group_name: str):
+    global database, cursor
+    try:
+        cursor.execute(f"DELETE FROM users_groups WHERE id_user = {id_user}"
+                       f" AND saved_group_id = {group_id}"
+                       f" AND saved_group_name = '{group_name}'")
+        database.commit()
+    except Exception as e:
+        pass
+
+
+async def remove_teacher_for_user(id_user: int, teacher_id: int, teacher_name: str):
+    global database, cursor
+    try:
+        cursor.execute(f"DELETE FROM users_teachers WHERE id_user = {id_user}"
+                       f" AND saved_teacher_id = {teacher_id}"
+                       f" AND saved_teacher_name = '{teacher_name}'")
+        database.commit()
+    except Exception as e:
+        pass
+
+
 # GET
+
 async def get_all_from_user(id_user: int) -> dict:
     res = cursor.execute(f"SELECT * FROM users WHERE id_user = {id_user}").fetchone()
     if res is None:
         return dict()
     data = dict()
-    data[DatabaseColumnsUser.SAVED_GROUP] = res[1]
-    data[DatabaseColumnsUser.SAVED_GROUP_NAME] = res[2]
-    data[DatabaseColumnsUser.SAVED_TEACHER] = res[3]
-    data[DatabaseColumnsUser.SAVED_TEACHER_NAME] = res[4]
+    data[DatabaseColumnsUser.LAST_GROUP] = res[1]
+    data[DatabaseColumnsUser.LAST_GROUP_NAME] = res[2]
 
-    data[DatabaseColumnsUser.LAST_GROUP] = res[5]
-    data[DatabaseColumnsUser.LAST_GROUP_NAME] = res[6]
-    data[DatabaseColumnsUser.LAST_TEACHER] = res[7]
-    data[DatabaseColumnsUser.LAST_TEACHER_NAME] = res[8]
+    data[DatabaseColumnsUser.LAST_TEACHER] = res[3]
+    data[DatabaseColumnsUser.LAST_TEACHER_NAME] = res[4]
 
-    data[DatabaseColumnsUser.CODE_AUD] = res[9]
-    data[DatabaseColumnsUser.CODE_BUILDING] = res[10]
+    data[DatabaseColumnsUser.CODE_AUD] = res[5]
+    data[DatabaseColumnsUser.CODE_BUILDING] = res[6]
+
     return data
 
 
 async def get_from_user(id_user: int, column):
     res = cursor.execute(f"SELECT {column} FROM users WHERE id_user = {id_user}").fetchone()
-    if res is None:
-        return None
-    return res[0]
+    return res[0] if res is not None else None
+
+
+async def get_saved_groups(id_user: int):
+    res = cursor.execute(
+        f"SELECT saved_group_id, saved_group_name FROM users_groups WHERE id_user = {id_user}").fetchall()
+    return res if res is not None else list()
+
+
+async def get_saved_teachers(id_user: int):
+    res = cursor.execute(
+        f"SELECT saved_teacher_id, saved_teacher_name FROM users_teachers WHERE id_user = {id_user}").fetchall()
+    return res if res is not None else list()
+
+
+async def can_save_group(id_user: int) -> bool:
+    current_count = await get_current_groups_count(id_user)
+    max_count = await get_max_groups_count()
+    return current_count < max_count
+
+
+async def can_save_teacher(id_user: int) -> bool:
+    current_count = await get_current_teachers_count(id_user)
+    max_count = await get_max_teachers_count()
+    return current_count < max_count
+
+
+async def get_max_groups_count() -> int:
+    res = cursor.execute(
+        f"SELECT parameter FROM bot_parameters where name = 'max_groups_count'").fetchone()
+    return int(res[0]) if res is not None else 0
+
+
+async def get_max_teachers_count() -> int:
+    res = cursor.execute(
+        f"SELECT parameter FROM bot_parameters where name = 'max_teachers_count'").fetchone()
+    return int(res[0]) if res is not None else 0
+
+
+async def get_current_groups_count(id_user: int) -> int:
+    res = cursor.execute(
+        f"SELECT COUNT(*) FROM users_groups where id_user = {id_user}").fetchone()
+    return int(res[0]) if res is not None else 0
+
+
+async def get_current_teachers_count(id_user: int) -> int:
+    res = cursor.execute(
+        f"SELECT COUNT(*) FROM users_teachers where id_user = {id_user}").fetchone()
+    return int(res[0]) if res is not None else 0

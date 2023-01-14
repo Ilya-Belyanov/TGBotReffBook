@@ -15,7 +15,7 @@ from app.bottriggers.corefunctions import process_schedule_dates,\
 
 
 # Поиск расписания на другую неделю для группы - обработка кнопки
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state=StateMachine.LESSON_STATE)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES == parseForData(c.data, 0), state=StateMachine.LESSON_STATE)
 async def process_callback_lesson_on_dates_group(callback_query: types.CallbackQuery, state: FSMContext):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
@@ -24,7 +24,7 @@ async def process_callback_lesson_on_dates_group(callback_query: types.CallbackQ
 
 
 # Поиск расписания на другую неделю для преподавателя - обработка кнопки
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state=StateMachine.TEACHER_LESSON_STATE)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES == parseForData(c.data, 0), state=StateMachine.TEACHER_LESSON_STATE)
 async def process_callback_lesson_on_dates_teacher(callback_query: types.CallbackQuery, state: FSMContext):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
@@ -33,7 +33,7 @@ async def process_callback_lesson_on_dates_teacher(callback_query: types.Callbac
 
 
 # Поиск расписания на другую неделю для аудитории - обработка кнопки
-@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES in c.data, state=StateMachine.PLACE_LESSON_STATE)
+@dispatcher.callback_query_handler(lambda c: IdCommandKeyWords.DATES == parseForData(c.data, 0), state=StateMachine.PLACE_LESSON_STATE)
 async def process_callback_lesson_on_dates_teacher(callback_query: types.CallbackQuery, state: FSMContext):
     await bot_object.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
     date = datetime.date.fromisoformat(parseForData(callback_query.data))
