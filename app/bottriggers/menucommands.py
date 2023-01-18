@@ -65,7 +65,7 @@ async def process_param_command(message: types.Message, state: FSMContext):
         last_group if last_group is not None else emojize(
             edb.NO_ENTRY_SIGN))
     answer += "\n"
-    last_teacher = data[DatabaseColumnsUser.LAST_TEACHER]
+    last_teacher = data[DatabaseColumnsUser.LAST_TEACHER_NAME]
     answer += md.bold("Преподаватель") + " - " + (
         last_teacher if last_teacher is not None else emojize(edb.NO_ENTRY_SIGN))
     await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
