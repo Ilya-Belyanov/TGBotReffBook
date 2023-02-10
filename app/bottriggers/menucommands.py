@@ -92,17 +92,17 @@ async def process_saved_command(message: types.Message, state: FSMContext):
         kb.ModifyKeyboard.addCacheTeacherButton(keyboard, teacher[0],
                                                 teacher[1], IdCommandKeyWords.TEACHER, text="Преподаватель:")
 
-    if DatabaseColumnsUser.LAST_GROUP in data \
+    if data[DatabaseColumnsUser.LAST_GROUP] \
             and (data[DatabaseColumnsUser.LAST_GROUP], data[DatabaseColumnsUser.LAST_GROUP_NAME]) not in saved_groups:
         is_smth = True
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[DatabaseColumnsUser.LAST_GROUP],
                                               data[DatabaseColumnsUser.LAST_GROUP_NAME],
                                               IdCommandKeyWords.GROUP, text="Последняя группа:")
 
-    if DatabaseColumnsUser.LAST_TEACHER in data \
+    if data[DatabaseColumnsUser.LAST_TEACHER] \
             and (data[DatabaseColumnsUser.LAST_TEACHER], data[DatabaseColumnsUser.LAST_TEACHER_NAME]) not in saved_teachers:
         is_smth = True
-        kb.ModifyKeyboard.addCacheGroupButton(keyboard, data[DatabaseColumnsUser.LAST_TEACHER],
+        kb.ModifyKeyboard.addCacheTeacherButton(keyboard, data[DatabaseColumnsUser.LAST_TEACHER],
                                               data[DatabaseColumnsUser.LAST_TEACHER_NAME],
                                               IdCommandKeyWords.TEACHER, text="Последний пр-ль:")
 

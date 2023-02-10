@@ -59,6 +59,7 @@ def beautifySchedule(schedule: list, date: datetime.date):
                 result_str += emojize(f"{edb.FILE_FOLDER} ") + md.link(lesson[LessonsKeyWords.RESOURCE_NAME],
                                                                        lesson[LessonsKeyWords.RESOURCE_LINK])
             result_str += 2 * "\n"
+        result_str = result_str.replace(".", "\.")
         result_list.append(result_str)
         result_str = ""
     if len(schedule) == 0:
