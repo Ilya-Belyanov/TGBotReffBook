@@ -9,6 +9,13 @@ from app.data.urls import SCHEDULE_URL
 from app.core import datetimehelper
 
 
+def prepareString(message: str):
+    symbols = {".", "*", "(", ")", "[", "]", "_", "~", '`', '>', '#', '+', '-', '=', '|', '{', '}', '!'}
+    for symbol in symbols:
+        message = message.replace(symbol,  f"\{symbol}")
+    return message
+
+
 def beautifySchedule(schedule: list, date: datetime.date):
     result_list = []
     even = "чет" if datetimehelper.isEvenWeek(date) else "нечет"
@@ -18,7 +25,9 @@ def beautifySchedule(schedule: list, date: datetime.date):
     for day in schedule:
         day_lessons = datetime.datetime.strptime(day[LessonsKeyWords.DAY], "%Y-%m-%d")
 
-        result_str += md.code(day_lessons.strftime("%d ") + datetimehelper.month_str(day_lessons) + ", " + datetimehelper.weekday_str(day_lessons)) + 2 * "\n"
+        result_str += md.code(
+            day_lessons.strftime("%d ") + datetimehelper.month_str(day_lessons) + ", " + datetimehelper.weekday_str(
+                day_lessons)) + 2 * "\n"
         for lesson in day[LessonsKeyWords.LESSONS]:
             result_str += md.italic(lesson[LessonsKeyWords.START_TIME]) + " \- "
             result_str += md.italic(lesson[LessonsKeyWords.END_TIME])
@@ -29,7 +38,7 @@ def beautifySchedule(schedule: list, date: datetime.date):
             if LessonsKeyWords.TYPE in lesson:
                 result_str += "\n"
                 result_str += emojize(f"{edb.LOWER_LEFT_FOUNTAIN_PEN} ")
-                result_str += lesson[LessonsKeyWords.TYPE]
+                result_str += prepareString(lesson[LessonsKeyWords.TYPE])
 
             # Группы
             if LessonsKeyWords.GROUPS_NAME in lesson:
@@ -59,7 +68,6 @@ def beautifySchedule(schedule: list, date: datetime.date):
                 result_str += emojize(f"{edb.FILE_FOLDER} ") + md.link(lesson[LessonsKeyWords.RESOURCE_NAME],
                                                                        lesson[LessonsKeyWords.RESOURCE_LINK])
             result_str += 2 * "\n"
-        result_str = result_str.replace(".", "\.")
         result_list.append(result_str)
         result_str = ""
     if len(schedule) == 0:
