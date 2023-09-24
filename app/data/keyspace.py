@@ -19,6 +19,7 @@ class LessonsKeyWords:
     END_TIME = "end_time"
     NAME = "name"
     TYPE = "type"
+    ADD_INFO = "additional_info"
     GROUPS_NAME = "groups_name"
     GROUPS_LINK = "groups_link"
     TEACHER_NAME = "teacher_name"

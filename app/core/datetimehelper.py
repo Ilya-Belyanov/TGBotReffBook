@@ -45,6 +45,10 @@ def month_str(date: datetime.date):
     return MONTHS[date.month]
 
 
+def simplifyStr(string: str):
+    return string if string[0] != "/" else string[1:]
+
+
 def strToDate(string: str):
     today = datetime.date.today()
     date_obj = datetime.datetime.today()

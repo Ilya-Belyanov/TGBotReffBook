@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 
 from app.bot import dispatcher, bot_object
 from app.core.dbhelper import all_users, save_int_for_user
@@ -9,7 +10,7 @@ from app.data.keyspace import DatabaseColumnsUser
 
 # Обработка введенного текста
 @dispatcher.message_handler(content_types=types.ContentType.ANY, state=StateMachine.WRITE_TO_ALL)
-async def process_callback_write_to_all(msg: types.Message):
+async def process_callback_write_to_all(msg: types.Message, state: FSMContext):
     users = await all_users()
     for user in users:
         try:

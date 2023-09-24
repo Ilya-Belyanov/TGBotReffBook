@@ -24,8 +24,8 @@ from app.bottriggers.corefunctions import process_start_menu
 @dispatcher.message_handler(commands=[COMMANDS.START], state='*')
 @analytic_wrapper_with_message(action=COMMANDS.START)
 async def process_start_command(message: types.Message, state: FSMContext):
-    await process_start_menu(message.from_user.id, state)
-    await add_user(message.from_user.id)
+    await process_start_menu(message.chat.id, state)
+    await add_user(message.chat.id)
 
 
 # Ответ на запрос /help
@@ -33,7 +33,7 @@ async def process_start_command(message: types.Message, state: FSMContext):
 @analytic_wrapper_with_message(action=COMMANDS.HELP)
 async def process_help_command(message: types.Message):
     await message.reply(COMMANDS_MESS, parse_mode=types.ParseMode.MARKDOWN)
-    await add_user(message.from_user.id)
+    await add_user(message.chat.id)
 
 
 # Ответ на запрос /parameters
@@ -41,7 +41,7 @@ async def process_help_command(message: types.Message):
 @analytic_wrapper_with_message(action=COMMANDS.PARAMETERS)
 async def process_param_command(message: types.Message, state: FSMContext):
     answer = md.bold("Последний раз вы ввели следующие параметры") + ":"
-    data = await get_all_from_user(message.from_user.id)
+    data = await get_all_from_user(message.chat.id)
     state_data = await state.get_data()
     answer += "\n"
     name = emojize(edb.NO_ENTRY_SIGN)
@@ -69,7 +69,7 @@ async def process_param_command(message: types.Message, state: FSMContext):
     answer += md.bold("Преподаватель") + " - " + (
         last_teacher if last_teacher is not None else emojize(edb.NO_ENTRY_SIGN))
     await message.reply(md.text(answer), parse_mode=types.ParseMode.MARKDOWN)
-    await add_user(message.from_user.id)
+    await add_user(message.chat.id)
 
 
 # Ответ на запрос /saved
@@ -78,15 +78,15 @@ async def process_param_command(message: types.Message, state: FSMContext):
 async def process_saved_command(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(row_width=1)
     is_smth = False
-    data = await get_all_from_user(message.from_user.id)
+    data = await get_all_from_user(message.chat.id)
 
-    saved_groups = await get_saved_groups(message.from_user.id)
+    saved_groups = await get_saved_groups(message.chat.id)
     for group in saved_groups:
         is_smth = True
         kb.ModifyKeyboard.addCacheGroupButton(keyboard, group[0],
                                               group[1], IdCommandKeyWords.GROUP, text="Группа:")
 
-    saved_teachers = await get_saved_teachers(message.from_user.id)
+    saved_teachers = await get_saved_teachers(message.chat.id)
     for teacher in saved_teachers:
         is_smth = True
         kb.ModifyKeyboard.addCacheTeacherButton(keyboard, teacher[0],
@@ -110,17 +110,17 @@ async def process_saved_command(message: types.Message, state: FSMContext):
         await message.answer("Сохраненные и последние поиски!", reply_markup=keyboard)
     else:
         await message.answer("Никаких сохранений нет!")
-    await add_user(message.from_user.id)
+    await add_user(message.chat.id)
 
 
 # Ответ на запрос /admin
 @dispatcher.message_handler(commands=[COMMANDS.ADMIN], state='*')
 @analytic_wrapper_with_message(action=COMMANDS.ADMIN)
-async def process_admin_command(message: types.Message):
-    is_available = await is_admin(message.from_user.id)
+async def process_admin_command(message: types.Message, state: FSMContext):
+    is_available = await is_admin(message.chat.id)
     if not is_available:
         return
     await message.reply("Сударь, добро пожаловать", parse_mode=types.ParseMode.MARKDOWN,
                         reply_markup=kb.InitialKeyboard.getAdminKeyboard())
-    await add_user(message.from_user.id)
+    await add_user(message.chat.id)
     await StateMachine.MAIN_STATE.set()
