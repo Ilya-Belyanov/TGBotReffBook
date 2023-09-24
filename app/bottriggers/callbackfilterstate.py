@@ -25,7 +25,7 @@ async def process_callback_institutes(callback_query: types.CallbackQuery, state
 
     await bot_object.answer_callback_query(callback_query.id)
     name = await ScheduleParserCashManager.getInstituteNameByID(code)
-    await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали "{name}" ')
+    await bot_object.send_message(callback_query.message.chat.id, f'Вы выбрали "{name}" ')
     await process_answer_ed_form(callback_query, state)
 
 
@@ -37,7 +37,7 @@ async def process_callback_education_form(callback_query: types.CallbackQuery, s
     await state.update_data(ed_form=code)
 
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}" \n'
+    await bot_object.send_message(callback_query.message.chat.id, f'Вы выбрали форму "{EDUCATION_FORMS_RU[code]}" \n'
                                   + emojize(edb.LAST_QUARTER_MOON) + 'Ступень образования?',
                                   reply_markup=keyboard)
 
@@ -53,7 +53,7 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
 
     if StateKeyWords.INSTITUTE not in data \
             or StateKeyWords.ED_FORM not in data:
-        await bot_object.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
+        await bot_object.send_message(callback_query.message.chat.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
                                                             f'сначала!')
         await process_answer_institute(callback_query, state)
         return
@@ -63,13 +63,13 @@ async def process_callback_education_degree(callback_query: types.CallbackQuery,
                                                         data[StateKeyWords.ED_DEGREE])
 
     if len(levels) == 0:
-        await bot_object.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
+        await bot_object.send_message(callback_query.message.chat.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
                                                             f'параметры!')
         await process_answer_ed_form(callback_query, state)
         return
-    await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали степень "{EDUCATION_DEGREE_RU[code]}"')
+    await bot_object.send_message(callback_query.message.chat.id, f'Вы выбрали степень "{EDUCATION_DEGREE_RU[code]}"')
     keyboard = kb.ScheduleKeyboard.createKeyboardListRows(levels, IdCommandKeyWords.LEVEL)
-    await bot_object.send_message(callback_query.from_user.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?',
+    await bot_object.send_message(callback_query.message.chat.id, emojize(edb.WANING_CRESCENT_MOON) + 'Курс?',
                                   reply_markup=keyboard)
 
 
@@ -81,12 +81,12 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
     data = await state.get_data()
 
     await bot_object.answer_callback_query(callback_query.id)
-    await bot_object.send_message(callback_query.from_user.id, f'Вы выбрали {code} курс')
+    await bot_object.send_message(callback_query.message.chat.id, f'Вы выбрали {code} курс')
 
     if StateKeyWords.INSTITUTE not in data \
             or StateKeyWords.ED_FORM not in data \
             or StateKeyWords.ED_DEGREE not in data:
-        await bot_object.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
+        await bot_object.send_message(callback_query.message.chat.id, f'{emojize(edb.CRY)} Нет необходимых параметров, начните '
                                                             f'сначала!')
         await process_answer_institute(callback_query, state)
         return
@@ -97,10 +97,10 @@ async def process_callback_level(callback_query: types.CallbackQuery, state: FSM
                                                                    data[StateKeyWords.LEVEL])
 
     if len(groups) == 0:
-        await bot_object.send_message(callback_query.from_user.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
+        await bot_object.send_message(callback_query.message.chat.id, f'{emojize(edb.CRY)} Здесь нет групп, выберите другие '
                                                             f'параметры!')
         await process_answer_ed_form(callback_query, state)
         return
 
     keyboard = kb.ScheduleKeyboard.createKeyboardRows(groups, IdCommandKeyWords.GROUP, rows_count=2)
-    await bot_object.send_message(callback_query.from_user.id, emojize(edb.NEW_MOON) + 'Группа?', reply_markup=keyboard)
+    await bot_object.send_message(callback_query.message.chat.id, emojize(edb.NEW_MOON) + 'Группа?', reply_markup=keyboard)

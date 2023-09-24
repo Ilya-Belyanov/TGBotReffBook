@@ -18,18 +18,18 @@ async def unknown_message(msg: types.Message):
 async def process_callback_unknown_lessons(callback_query: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state == StateMachine.MAIN_STATE.state or current_state is None:
-        await bot_object.send_message(callback_query.from_user.id, f'Вы находитесь в главном состоянии '
+        await bot_object.send_message(callback_query.message.chat.id, f'Вы находитесь в главном состоянии '
                                                                    f' выберите опцию по команде /{COMMANDS.START}')
     elif current_state == StateMachine.FILTER_GROUP.state:
-        await bot_object.send_message(callback_query.from_user.id,
+        await bot_object.send_message(callback_query.message.chat.id,
                                       f'Вы находитесь в состоянии поиска группы по фильтру,'
                                       f' для выхода введите /{COMMANDS.START}')
 
     elif current_state == StateMachine.GROUP_NAME.state:
-        await bot_object.send_message(callback_query.from_user.id, f'Вы находитесь в состоянии поиска группы по имени'
+        await bot_object.send_message(callback_query.message.chat.id, f'Вы находитесь в состоянии поиска группы по имени'
                                                                    f' для выхода введите /{COMMANDS.START}')
 
     elif current_state == StateMachine.LESSON_STATE.state:
-        await bot_object.send_message(callback_query.from_user.id, f'Вы находитесь в состоянии просмотра расписания,'
+        await bot_object.send_message(callback_query.message.chat.id, f'Вы находитесь в состоянии просмотра расписания,'
                                                                    f' для выхода введите /{COMMANDS.START}')
     await bot_object.answer_callback_query(callback_query.id)

@@ -12,8 +12,18 @@ from app.core import datetimehelper
 def prepareString(message: str):
     symbols = {".", "*", "(", ")", "[", "]", "_", "~", '`', '>', '#', '+', '-', '=', '|', '{', '}', '!'}
     for symbol in symbols:
-        message = message.replace(symbol,  f"\{symbol}")
+        message = message.replace(symbol, f"\{symbol}")
     return message
+
+
+def getIconForTypeLesson(lesson):
+    if "Практика" in lesson:
+        return edb.PRACTICE
+    elif "Лекции" in lesson:
+        return edb.LOWER_LEFT_FOUNTAIN_PEN
+    elif "Лабораторные" in lesson:
+        return edb.LAB
+    return edb.LOWER_LEFT_FOUNTAIN_PEN
 
 
 def beautifySchedule(schedule: list, date: datetime.date):
@@ -37,8 +47,14 @@ def beautifySchedule(schedule: list, date: datetime.date):
             # Тип занятия
             if LessonsKeyWords.TYPE in lesson:
                 result_str += "\n"
-                result_str += emojize(f"{edb.LOWER_LEFT_FOUNTAIN_PEN} ")
+                result_str += emojize(f"{getIconForTypeLesson(prepareString(lesson[LessonsKeyWords.TYPE]))} ")
                 result_str += prepareString(lesson[LessonsKeyWords.TYPE])
+
+            # Доп инфа
+            if LessonsKeyWords.ADD_INFO in lesson and prepareString(lesson[LessonsKeyWords.ADD_INFO]) != "":
+                result_str += "\n"
+                result_str += emojize(f"{edb.LOUD_SPEAKER} ")
+                result_str += prepareString(lesson[LessonsKeyWords.ADD_INFO])
 
             # Группы
             if LessonsKeyWords.GROUPS_NAME in lesson:

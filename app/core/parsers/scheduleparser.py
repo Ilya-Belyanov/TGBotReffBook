@@ -145,6 +145,10 @@ class ScheduleParser:
                 if lesson.get("typeObj") is not None:
                     lesson_dict[LessonsKeyWords.TYPE] = lesson.get("typeObj")["name"]
 
+                # Type
+                if lesson.get("additional_info") is not None:
+                    lesson_dict[LessonsKeyWords.ADD_INFO] = lesson.get("additional_info")
+
                 # Groups
                 if lesson.get("groups") is not None:
                     lesson_dict[LessonsKeyWords.GROUPS_NAME] = [group["name"] for group in lesson["groups"]]
